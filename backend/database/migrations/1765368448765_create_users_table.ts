@@ -13,11 +13,12 @@ export default class extends BaseSchema {
 
       table
         .string('company_hostname')
+        .notNullable()
         .references('hostname')
         .inTable('companies')
         .onDelete('CASCADE')
 
-      table.enum('role', ['owner', 'member']).defaultTo('member')
+      table.enum('role', ['owner', 'member']).notNullable()
 
       table.timestamp('created_at')
       table.timestamp('updated_at')
