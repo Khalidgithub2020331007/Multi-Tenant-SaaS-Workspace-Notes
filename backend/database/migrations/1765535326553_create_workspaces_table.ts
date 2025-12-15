@@ -1,16 +1,12 @@
-// database/migrations/xxxx_users.ts
 import { BaseSchema } from '@adonisjs/lucid/schema'
 
 export default class extends BaseSchema {
-  protected tableName = 'users'
+  protected tableName = 'workspaces'
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.string('name').notNullable()
-      table.string('email').unique().notNullable()
-      table.string('password').notNullable()
-
+      table.string('workspace_name').notNullable()
       table
         .string('company_hostname')
         .notNullable()
@@ -18,10 +14,8 @@ export default class extends BaseSchema {
         .inTable('companies')
         .onDelete('CASCADE')
 
-      table.enum('role', ['owner', 'member']).notNullable()
-
-      table.timestamp('created_at', { useTz: true })
-      table.timestamp('updated_at', { useTz: true })
+      table.timestamp('created_at')
+      table.timestamp('updated_at')
     })
   }
 

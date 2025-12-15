@@ -17,9 +17,18 @@ export default class CompanyRegisterService {
   /**
    * Register a new company and its owner
    */
-  public async register(payload: CompanyRegisterPayload) {
+  public async company_register(payload: CompanyRegisterPayload) {
     const trx = await db.transaction()
     try {
+      // Before creating company
+      const existingCompany = await Company.query()
+        .where('hostname', payload.hostname)
+        .orWhere('owner_email', payload.owner_email)
+        .first()
+
+      if (existingCompany) {
+        throw new Error('Company already exists ')
+      }
       // 1️⃣ Hash the owner password
       const hashedPassword = await hash.make(payload.owner_password)
 
@@ -40,7 +49,7 @@ export default class CompanyRegisterService {
         {
           name: payload.owner_name,
           email: payload.owner_email || `${payload.hostname}@owner.com`,
-          password_hash: hashedPassword,
+          password: payload.owner_password,
           company_hostname: payload.hostname,
           role: 'owner',
         },

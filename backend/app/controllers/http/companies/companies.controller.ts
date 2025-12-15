@@ -14,13 +14,13 @@ export default class CompanyRegisterController {
   /**
    * Register a new company with owner user
    */
-  public async register({ request, response }: HttpContext) {
+  public async company_register({ request, response }: HttpContext) {
     try {
       // 1️⃣ Validate the request data
       const payload = await request.validateUsing(companyRegisterValidator)
 
       // 2️⃣ Call the service to register company & owner
-      const result = await this.service.register(payload)
+      const result = await this.service.company_register(payload)
 
       // 3️⃣ Return success response
       return response.created({

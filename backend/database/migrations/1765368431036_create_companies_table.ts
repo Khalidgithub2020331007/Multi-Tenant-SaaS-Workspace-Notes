@@ -10,7 +10,7 @@ export default class extends BaseSchema {
       table.string('hostname').notNullable().unique()
       table.string('company_name').notNullable()
       table.string('owner_name').notNullable()
-      table.string('owner_email').notNullable()
+      table.string('owner_email').notNullable().unique()
       table.string('owner_password').notNullable()
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })

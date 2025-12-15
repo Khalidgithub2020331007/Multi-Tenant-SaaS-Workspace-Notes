@@ -1,3 +1,5 @@
+// migration note table
+
 import { BaseSchema } from '@adonisjs/lucid/schema'
 
 export default class extends BaseSchema {
@@ -6,9 +8,29 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
+      table
+        .integer('workspace_id')
+        .unsigned()
+        .references('id')
+        .inTable('workspaces')
+        .onDelete('cascade')
 
-      table.timestamp('created_at')
-      table.timestamp('updated_at')
+      table
+        .integer('author_user_id')
+        .unsigned()
+        .references('id')
+        .inTable('users')
+        .onDelete('cascade')
+      table
+        .string('company_hostname')
+        .references('company_hostname')
+        .inTable('users')
+        .onDelete('cascade')
+      table.string('title').notNullable()
+      table.text('content').notNullable()
+      table.enum('note_type', ['draft', 'public', 'private']).notNullable().defaultTo('draft')
+
+      table.timestamps(true)
     })
   }
 

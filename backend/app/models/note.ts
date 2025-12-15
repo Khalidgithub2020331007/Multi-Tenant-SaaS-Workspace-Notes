@@ -1,9 +1,37 @@
+// note model
+
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
+import Workspace from './workspace.js'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import User from './user.js'
 
 export default class Note extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
+
+  @column()
+  declare workspace_id: number
+
+  @column()
+  declare author_user_id: number
+  @column()
+  declare title: string
+  @column()
+  declare content: string
+  @column()
+  declare note_type: 'draft' | 'public' | 'private'
+  @column()
+  declare compnay_hostname: string
+
+  @belongsTo(() => User, { foreignKey: 'company_hostname' })
+  declare company_hostname: BelongsTo<typeof User>
+
+  @belongsTo(() => User, { foreignKey: 'author_user_id' })
+  declare authorUser: BelongsTo<typeof User>
+
+  @belongsTo(() => Workspace, { foreignKey: 'workspace_id' })
+  declare workspace: BelongsTo<typeof Workspace>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

@@ -1,18 +1,21 @@
+// migration note tag table
+
 import { BaseSchema } from '@adonisjs/lucid/schema'
 
-export default class extends BaseSchema {
+export default class NoteTags extends BaseSchema {
   protected tableName = 'note_tags'
 
-  async up() {
+  public async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
-
-      table.timestamp('created_at')
-      table.timestamp('updated_at')
+      table.increments('id').unsigned().primary()
+      table.integer('note_id').unsigned().references('id').inTable('notes').onDelete('CASCADE')
+      table.integer('tag_id').unsigned().references('id').inTable('tags').onDelete('CASCADE')
+      table.timestamps(true, true)
+      table.unique(['note_id', 'tag_id'])
     })
   }
 
-  async down() {
+  public async down() {
     this.schema.dropTable(this.tableName)
   }
 }

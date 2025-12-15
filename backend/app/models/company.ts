@@ -3,6 +3,8 @@ import type { HasMany } from '@adonisjs/lucid/types/relations'
 import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
 import Workspace from './workspace.js'
 import User from './user.js'
+import Tag from './tag.js'
+import Note from './note.js'
 
 export default class Company extends BaseModel {
   public static table = 'companies'
@@ -38,4 +40,10 @@ export default class Company extends BaseModel {
 
   @hasMany(() => User)
   declare users: HasMany<typeof User>
+
+  @hasMany(() => Tag)
+  declare tags: HasMany<typeof Tag>
+
+  @hasMany(() => Note)
+  declare notes: HasMany<typeof Note>
 }

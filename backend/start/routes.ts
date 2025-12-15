@@ -14,3 +14,13 @@ router.get('/', async () => {
     hello: 'world',
   }
 })
+
+// Owner dashboard (temporary)
+router.get('/owner/dashboard', async ({ response }) => {
+  return response.ok({ message: 'Welcome to OWNER dashboard' })
+})
+
+// Member dashboard (temporary)
+router.get('/member/dashboard', async ({ response }) => {
+  return response.ok({ message: 'Welcome to MEMBER dashboard' })
+})

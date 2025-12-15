@@ -1,8 +1,19 @@
 import { DateTime } from 'luxon'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
-import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
+import { BaseModel, column, hasMany, belongsTo } from '@adonisjs/lucid/orm'
+import hash from '@adonisjs/core/services/hash'
+import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
+import { compose } from '@adonisjs/core/helpers'
+import Company from './company.js'
+import Note from './note.js'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 
-export default class User extends BaseModel {
+const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
+  uids: ['email'],
+  passwordColumnName: 'password',
+})
+
+export default class User extends compose(BaseModel, AuthFinder) {
   public static table = 'users'
 
   @column({ isPrimary: true })
@@ -15,7 +26,7 @@ export default class User extends BaseModel {
   declare email: string
 
   @column({ columnName: 'password' })
-  declare password_hash: string
+  declare password: string
 
   @column()
   declare company_hostname: string
@@ -31,19 +42,9 @@ export default class User extends BaseModel {
 
   // Relationships
 
-  // @belongsTo(() => Company, {
-  //   foreignKey: 'company_hostname',
-  //   localKey: 'hostname',
-  // })
-  // public company: BelongsTo<typeof Company>
+  @belongsTo(() => Company)
+  declare company: BelongsTo<typeof Company>
 
-  // @hasMany(() => Workspace, {
-  //   foreignKey: 'owner_user_id',
-  // })
-  // public ownedWorkspaces: HasMany<typeof Workspace>
-
-  // @hasMany(() => Note, {
-  //   foreignKey: 'author_user_id',
-  // })
-  // public notes: HasMany<typeof Note>
+  @hasMany(() => Note)
+  declare notes: HasMany<typeof Note>
 }

@@ -20,6 +20,8 @@ export default class AuthMiddleware {
     } = {}
   ) {
     await ctx.auth.authenticateUsing(options.guards, { loginRoute: this.redirectTo })
+    const auth = ctx.auth.user
+    console.log('auth', auth)
     return next()
   }
 }
