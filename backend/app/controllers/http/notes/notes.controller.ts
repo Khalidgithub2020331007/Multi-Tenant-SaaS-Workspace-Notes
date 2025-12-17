@@ -80,7 +80,7 @@ export default class NoteController {
   public async search_note({ request, response }: HttpContext) {
     try {
       const title = request.input('title')
-      const result = await this.service.seachNote(title)
+      const result = await this.service.searchNote(title)
 
       return response.ok({
         message: result.message,

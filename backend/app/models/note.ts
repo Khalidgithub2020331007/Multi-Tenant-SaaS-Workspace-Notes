@@ -22,7 +22,7 @@ export default class Note extends BaseModel {
   @column()
   declare note_type: 'draft' | 'public' | 'private'
   @column()
-  declare compnay_hostname: string
+  declare company_hostname: string
 
   @belongsTo(() => User, { foreignKey: 'company_hostname' })
   declare company_hostname: BelongsTo<typeof User>

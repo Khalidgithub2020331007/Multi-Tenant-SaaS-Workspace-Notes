@@ -7,11 +7,9 @@ import NoteHistoryService from '../note_history/note_history.service.js'
 import db from '@adonisjs/lucid/services/db'
 
 type NotePayload = {
-  note_id: number
   title: string
   content: string
-  workspace_id: number
-  author_user_id: number
+
   note_type: 'draft' | 'public' | 'private'
 }
 type NoteCreatePayload = {
@@ -50,7 +48,7 @@ export default class NoteService {
       note.note_type = payload.note_type
       await note.save()
 
-      await this.historyService.record(note, user, 'created')
+      await this.historyService.record(note, user, 'created', trx)
       await trx.commit()
 
       return {
@@ -58,6 +56,7 @@ export default class NoteService {
         note,
       }
     } catch (error) {
+      await trx.rollback()
       throw new Error(`Failed to create note: ${error.message}`)
     }
   }
@@ -69,7 +68,7 @@ export default class NoteService {
         throw new Error('Note does not exist')
       }
       note.useTransaction(trx)
-      await this.historyService.record(note, user, 'deleted')
+      await this.historyService.record(note, user, 'deleted', trx)
       await note.delete()
       await trx.commit()
       return {
@@ -77,6 +76,7 @@ export default class NoteService {
         note,
       }
     } catch (error) {
+      await trx.rollback()
       throw new Error(`Failed to delete note: ${error.message}`)
     }
   }
@@ -91,8 +91,9 @@ export default class NoteService {
       note.title = payload.title
       note.content = payload.content
       note.note_type = payload.note_type
-      await this.historyService.record(note, user, 'updated')
       await note.save()
+
+      await this.historyService.record(note, user, 'updated',trx)
       await trx.commit()
 
       return {
@@ -100,12 +101,13 @@ export default class NoteService {
         note,
       }
     } catch (error) {
+      await trx.rollback()
       throw new Error(`Failed to update note: ${error.message}`)
     }
   }
-  public async seachNote(title: string) {
+  public async searchNote(title: string) {
     try {
-      const note = await Note.query().where('title', title).first()
+      const note = await Note.query().whereILike('title', title).first()
       if (!note) {
         throw new Error('Note does not exist')
       }

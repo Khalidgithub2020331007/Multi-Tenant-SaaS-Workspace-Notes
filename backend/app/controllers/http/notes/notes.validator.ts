@@ -25,6 +25,6 @@ export const noteCreateValidator = vine.compile(
     content: vine.string(),
     workspace_id: vine.number(),
     note_type: vine.enum(['draft', 'public', 'private'] as const),
-    compnay_hostname: vine.string(),
+    company_hostname: vine.string(),
   })
 )

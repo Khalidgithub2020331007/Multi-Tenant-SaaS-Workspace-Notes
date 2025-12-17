@@ -8,7 +8,7 @@ export default class NoteHistoryController {
       throw new Error('User not authenticated')
     }
     const histories = await NoteHistory.query()
-      .where('author_user_id', user.id)
+      .whereIn('author_user_id', user.id)
       .orderBy('created_at', 'desc')
 
     return response.ok({
