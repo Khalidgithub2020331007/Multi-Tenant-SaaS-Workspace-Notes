@@ -21,14 +21,12 @@ export default class extends BaseSchema {
         .references('id')
         .inTable('users')
         .onDelete('cascade')
-      table
-        .string('company_hostname')
-        .references('company_hostname')
-        .inTable('users')
-        .onDelete('cascade')
+      table.string('company_hostname').notNullable
       table.string('title').notNullable()
-      table.text('content').notNullable()
+      table.text('content', 'longtext').notNullable()
       table.enum('note_type', ['draft', 'public', 'private']).notNullable().defaultTo('draft')
+      table.integer('upvotes').defaultTo(0)
+      table.integer('downvotes').defaultTo(0)
 
       table.timestamps(true)
     })

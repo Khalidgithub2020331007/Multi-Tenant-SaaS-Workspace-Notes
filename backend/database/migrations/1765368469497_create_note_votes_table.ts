@@ -6,6 +6,16 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
+      table.integer('note_id').unsigned().references('id').inTable('notes').onDelete('cascade')
+      table
+        .integer('voter_user_id')
+        .unsigned()
+        .references('id')
+        .inTable('users')
+        .onDelete('cascade')
+
+      table.integer('vote_value').notNullable()
+      table.unique(['note_id', 'voter_user_id'])
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

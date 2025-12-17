@@ -93,9 +93,13 @@ export default class NoteController {
       })
     }
   }
-  public async shownotes({ request, response }: HttpContext) {
+  public async shownotes({ response, auth }: HttpContext) {
     try {
-      const companyHostname = request.input('company_hostname')
+      const user = auth.user
+      if (!user) {
+        throw new Error('User not authenticated')
+      }
+      const companyHostname = user.company_hostname
       const result = await this.service.shownotes(companyHostname)
 
       return response.ok({

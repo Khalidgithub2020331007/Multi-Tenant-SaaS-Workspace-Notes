@@ -24,8 +24,10 @@ export default class Note extends BaseModel {
   @column()
   declare company_hostname: string
 
-  @belongsTo(() => User, { foreignKey: 'company_hostname' })
-  declare company_hostname: BelongsTo<typeof User>
+  @column()
+  declare upvotes: number
+  @column()
+  declare downvotes: number
 
   @belongsTo(() => User, { foreignKey: 'author_user_id' })
   declare authorUser: BelongsTo<typeof User>

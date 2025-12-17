@@ -16,6 +16,7 @@ type NoteCreatePayload = {
   title: string
   content: string
   workspace_id: number
+  company_hostname: string
   note_type: 'draft' | 'public' | 'private'
 }
 
@@ -46,6 +47,7 @@ export default class NoteService {
       note.workspace_id = workspace.id
       note.author_user_id = user.id
       note.note_type = payload.note_type
+      note.company_hostname = user.company_hostname
       await note.save()
 
       await this.historyService.record(note, user, 'created', trx)
@@ -93,7 +95,7 @@ export default class NoteService {
       note.note_type = payload.note_type
       await note.save()
 
-      await this.historyService.record(note, user, 'updated',trx)
+      await this.historyService.record(note, user, 'updated', trx)
       await trx.commit()
 
       return {
