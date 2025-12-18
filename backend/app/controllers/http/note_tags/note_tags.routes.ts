@@ -7,9 +7,7 @@ const NoteTagsController = () => import('./note_tags.controller.js')
 router
   .group(() => {
     router.post('/create', [NoteTagsController, 'create_noteTag'])
-    router
-      .delete('/:note_id/:tag_id', [NoteTagsController, 'delete_noteTag'])
-      .use([middleware.check_note_owner()])
+    router.delete('/:note_id/:tag_id', [NoteTagsController, 'delete_noteTag'])
   })
   .prefix('/note_tag')
   .use([middleware.auth()])

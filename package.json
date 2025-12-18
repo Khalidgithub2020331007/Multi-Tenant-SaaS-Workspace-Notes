@@ -1,0 +1,20 @@
+{
+  "name": "multi-tenant-saas-workspace-notes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Khalidgithub2020331007/Multi-Tenant-SaaS-Workspace-Notes.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Khalidgithub2020331007/Multi-Tenant-SaaS-Workspace-Notes/issues"
+  },
+  "homepage": "https://github.com/Khalidgithub2020331007/Multi-Tenant-SaaS-Workspace-Notes#readme"
+}

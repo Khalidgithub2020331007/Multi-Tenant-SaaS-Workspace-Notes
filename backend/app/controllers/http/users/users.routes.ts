@@ -1,3 +1,4 @@
+// user routes
 import { middleware } from '#start/kernel'
 import router from '@adonisjs/core/services/router'
 const UserRegisterController = () => import('./users.controller.js')

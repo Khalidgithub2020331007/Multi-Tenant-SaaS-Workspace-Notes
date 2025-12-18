@@ -62,6 +62,7 @@ export default class NoteController {
       if (!user) {
         throw new Error('User not authenticated')
       }
+
       const noteId = Number(request.params().id)
       const payload = await request.validateUsing(noteValidator)
       const result = await this.service.updateNote(noteId, payload, user)
@@ -77,10 +78,14 @@ export default class NoteController {
       })
     }
   }
-  public async search_note({ request, response }: HttpContext) {
+  public async search_note({ request, response, auth }: HttpContext) {
     try {
+      const user = auth.user
+      if (!user) {
+        throw new Error('User not authenticated')
+      }
       const title = request.input('title')
-      const result = await this.service.searchNote(title)
+      const result = await this.service.searchNote(title, user)
 
       return response.ok({
         message: result.message,
@@ -93,18 +98,36 @@ export default class NoteController {
       })
     }
   }
-  public async shownotes({ response, auth }: HttpContext) {
+  public async public_shownotes({ response, auth }: HttpContext) {
     try {
       const user = auth.user
       if (!user) {
         throw new Error('User not authenticated')
       }
-      const companyHostname = user.company_hostname
-      const result = await this.service.shownotes(companyHostname)
+      const result = await this.service.public_shownotes(user)
 
       return response.ok({
         message: result.message,
         note: result.note,
+      })
+    } catch (error) {
+      return response.badRequest({
+        message: 'Note search failed',
+        errors: error.messages || error.message,
+      })
+    }
+  }
+  public async private_shownotes({ response, auth }: HttpContext) {
+    try {
+      const user = auth.user
+      if (!user) {
+        throw new Error('User not authenticated')
+      }
+      const result = await this.service.private_draft_shownotes(user)
+
+      return response.ok({
+        message: result.message,
+        note: result.notes,
       })
     } catch (error) {
       return response.badRequest({

@@ -1,7 +1,6 @@
 import { HttpContext } from '@adonisjs/core/http'
 import WorkspaceService from './workspaces.service.js'
 import { WorkspaceValidator } from './workspaces.validator.js'
-import Workspace from '#models/workspace'
 import { workspaceDeleteValidator } from './workspaces.validator.js'
 
 export default class WorkspaceController {
@@ -24,7 +23,7 @@ export default class WorkspaceController {
       }
 
       // 2️⃣ Call the service to create workspace
-      const result = await this.service.create_workspace(payload)
+      const result = await this.service.create_workspace(payload, user)
 
       // 3️⃣ Return success response
       return response.created({
@@ -52,7 +51,8 @@ export default class WorkspaceController {
       }
       const result = await this.service.delete_workspace(
         payload.workspace_name,
-        payload.company_hostname
+        payload.company_hostname,
+        user
       )
 
       // 3️⃣ Return success response
@@ -68,9 +68,13 @@ export default class WorkspaceController {
       })
     }
   }
-  public async get_all_workspaces({ response }: HttpContext) {
+  public async get_all_workspaces({ response, auth }: HttpContext) {
     try {
-      const result = await this.service.get_all_workspaces()
+      const user = auth.user
+      if (!user) {
+        throw new Error('User not authenticated')
+      }
+      const result = await this.service.get_all_workspaces(user)
 
       return response.created({
         message: result.message,
@@ -83,10 +87,14 @@ export default class WorkspaceController {
       })
     }
   }
-  public async get_specifiec_workspace({ response, request }: HttpContext) {
+  public async get_specifiec_workspace({ response, request, auth }: HttpContext) {
     try {
+      const user = auth.user
+      if (!user) {
+        throw new Error('User not authenticated')
+      }
       const { id } = await request.only(['id'])
-      const result = await this.service.get_specifiec_workspace(id)
+      const result = await this.service.get_specifiec_workspace(id, user)
 
       return response.created({
         message: result.message,

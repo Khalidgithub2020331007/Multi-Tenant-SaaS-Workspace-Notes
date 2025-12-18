@@ -1,8 +1,12 @@
 import Tag from '#models/tag'
+import User from '#models/user'
 
 export default class TagsService {
-  public async createTag(tag_name: string, company_owner_email: string, user_role: string) {
+  public async createTag(tag_name: string, company_owner_email: string, user: User) {
     try {
+      if (user.role !== 'owner') {
+        throw new Error('Only owner can create a tag')
+      }
       const existingTag = await Tag.query()
         .where('tag_name', tag_name)
         .andWhere('company_owner_email', company_owner_email)

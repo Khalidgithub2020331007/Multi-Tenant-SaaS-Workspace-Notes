@@ -4,16 +4,12 @@ import router from '@adonisjs/core/services/router'
 const WorkspaceController = () => import('./workspaces.controller.js')
 router
   .group(() => {
-    router
-      .post('/create', [WorkspaceController, 'create_workspace'])
-      .use([middleware.check_ownerRole(), middleware.check_hostname()])
-    router
-      .post('/delete', [WorkspaceController, 'delete_workspace'])
-      .use([middleware.check_ownerRole(), middleware.check_hostname()])
+    router.post('/create', [WorkspaceController, 'create_workspace'])
+
+    router.post('/delete', [WorkspaceController, 'delete_workspace'])
+
     router.get('/all', [WorkspaceController, 'get_all_workspaces'])
-    router
-      .get('/:id', [WorkspaceController, 'get_specifiec_workspace'])
-      .use(middleware.check_hostname())
+    router.get('/:id', [WorkspaceController, 'get_specifiec_workspace'])
   })
   .prefix('/workspace')
   .use([middleware.auth()])

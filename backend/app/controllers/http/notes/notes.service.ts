@@ -69,6 +69,10 @@ export default class NoteService {
       if (!note) {
         throw new Error('Note does not exist')
       }
+      if (user.role !== 'owner' && note.author_user_id !== user.id) {
+        throw new Error('Only note owner or company owner can delete a note')
+      }
+
       note.useTransaction(trx)
       await this.historyService.record(note, user, 'deleted', trx)
       await note.delete()
@@ -89,6 +93,9 @@ export default class NoteService {
       if (!note) {
         throw new Error('Note does not exist')
       }
+      if (note.author_user_id !== user.id) {
+        throw new Error('Only note owner can update his note')
+      }
       note.useTransaction(trx)
       note.title = payload.title
       note.content = payload.content
@@ -107,11 +114,17 @@ export default class NoteService {
       throw new Error(`Failed to update note: ${error.message}`)
     }
   }
-  public async searchNote(title: string) {
+  public async searchNote(title: string, user: User) {
     try {
-      const note = await Note.query().whereILike('title', title).first()
+      const note = await Note.query()
+        .whereILike('title', title)
+        .where('company_hostname', user.company_hostname)
+        .first()
       if (!note) {
         throw new Error('Note does not exist')
+      }
+      if (note.company_hostname !== user.company_hostname) {
+        throw new Error('Only the company member can search')
       }
       return {
         message: 'Note found successfully',
@@ -121,18 +134,39 @@ export default class NoteService {
       throw new Error(`Failed to find note: ${error.message}`)
     }
   }
-  public async shownotes(company_hostname: string) {
+  public async public_shownotes(user: User) {
     try {
-      const note = await Note.query().where('company_hostname', company_hostname).first()
+      const note = await Note.query()
+        .where('company_hostname', user.company_hostname)
+        .where('note_type', 'public')
+        .first()
       if (!note) {
         throw new Error('Note does not exist')
       }
+      if (note.company_hostname !== user.company_hostname) {
+        throw new Error('Only the company member can see public note')
+      }
+
       return {
         message: 'Note found successfully',
         note,
       }
     } catch (error) {
       throw new Error(`Failed to find note: ${error.message}`)
+    }
+  }
+  public async private_draft_shownotes(user: User) {
+    const notes = await Note.query()
+      .where('company_hostname', user.company_hostname)
+      .where('author_user_id', user.id)
+      .where((query) => {
+        query.where('note_type', 'private').orWhere('note_type', 'draft')
+      })
+      .orderBy('created_at', 'desc')
+
+    return {
+      message: 'Private and draft notes fetched successfully',
+      notes,
     }
   }
 }

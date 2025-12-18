@@ -1,3 +1,4 @@
+// user controller
 import { HttpContext } from '@adonisjs/core/http'
 import UserRegisterService from '../users/users.service.js'
 import { userRegisterValidator } from '../users/users.validator.js'

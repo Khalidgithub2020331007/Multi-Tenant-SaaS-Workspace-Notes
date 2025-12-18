@@ -1,5 +1,6 @@
 import Company from '#models/company'
 import Workspace from '#models/workspace'
+import User from '#models/user'
 
 type WorkspacePayload = {
   workspace_name: string
@@ -8,7 +9,10 @@ type WorkspacePayload = {
 
 export default class WorkspaceService {
   // Service to create a new workspace
-  public async create_workspace(payload: WorkspacePayload) {
+  public async create_workspace(payload: WorkspacePayload, user: User) {
+    if (user.role !== 'owner') {
+      throw new Error('Only owner can create a workspace')
+    }
     // Check if company exists
     const companyExists = await Company.query().where('hostname', payload.company_hostname).first()
     if (!companyExists) {
@@ -34,7 +38,10 @@ export default class WorkspaceService {
       workspace,
     }
   }
-  public async delete_workspace(workspace_name: string, company_hostname: string) {
+  public async delete_workspace(workspace_name: string, company_hostname: string, user: User) {
+    if (user.role !== 'owner') {
+      throw new Error('Only owner can delete a workspace')
+    }
     try {
       const existingWorkspace = await Workspace.query()
         .where('workspace_name', workspace_name)
@@ -54,9 +61,12 @@ export default class WorkspaceService {
       throw new Error(`Failed to delete workspace: ${error.message}`)
     }
   }
-  public async get_all_workspaces() {
+  public async get_all_workspaces(user: User) {
     try {
-      const workspaces = await Workspace.query().select('*')
+      const workspaces = await Workspace.query()
+        .select('workspace_name')
+        .where('company_hostname', user.company_hostname)
+        .orderBy('created_at', 'desc')
 
       return {
         message: 'Workspaces fetched successfully',
@@ -66,9 +76,15 @@ export default class WorkspaceService {
       throw new Error(`Failed to fetch workspaces: ${error.message}`)
     }
   }
-  public async get_specifiec_workspace(id: number) {
+  public async get_specifiec_workspace(id: number, user: User) {
     try {
-      const workspace = await Workspace.query().where('id', id).first()
+      const workspace = await Workspace.query().select('*').where('id', id).first()
+      if (!workspace) {
+        throw new Error('Workspace does not exist')
+      }
+      if (workspace.company_hostname !== user.company_hostname) {
+        throw new Error('You can not fetch another company workspace')
+      }
 
       return {
         message: 'Workspace fetched successfully',

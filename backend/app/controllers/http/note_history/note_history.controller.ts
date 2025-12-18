@@ -8,7 +8,7 @@ export default class NoteHistoryController {
       throw new Error('User not authenticated')
     }
     const histories = await NoteHistory.query()
-      .whereIn('author_user_id', user.id)
+      .where('author_user_id', user.id)
       .orderBy('created_at', 'desc')
 
     return response.ok({
@@ -21,16 +21,21 @@ export default class NoteHistoryController {
     if (!user) {
       throw new Error('User not authenticated')
     }
+    if (user.role !== 'owner') {
+      throw new Error('only owener are authorized to fetch note history')
+    }
     const companyUsers = await User.query()
       .select('id')
       .where('company_hostname', user.company_hostname)
+      .orderBy('created_at', 'desc')
     const userIds = companyUsers.map((u) => u.id)
     const histories = await NoteHistory.query()
-      .where('author_user_id', userIds)
-      .orderBy('created_at', 'desc')
-    return response.ok({
-      messages: ' Company note history fetched successfully',
-      histories,
-    })
+      .whereIn('author_user_id', userIds) // fetch all note history of company users
+      .orderBy('created_at', 'desc') // order by created_at desc
+    return response.ok({ message: 'Company note history fetched successfully', histories })
+    // return response.ok({
+    //   messages: ' Company note history fetched successfully',
+    //   histories,
+    // })
   }
 }

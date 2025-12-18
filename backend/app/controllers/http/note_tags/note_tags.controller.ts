@@ -17,8 +17,12 @@ export default class NoteTagsController {
   public async create_noteTag({ request, response, auth }: HttpContext) {
     try {
       const payload = await request.validateUsing(noteTagsValidator)
+      const user = auth.user
+      if (!user) {
+        throw new Error('User not authenticated')
+      }
 
-      const result = await this.service.createNoteTag(payload)
+      const result = await this.service.createNoteTag(payload, user)
 
       return response.created({
         message: result.message,
@@ -31,11 +35,15 @@ export default class NoteTagsController {
       })
     }
   }
-  public async delete_noteTag({ request, response }: HttpContext) {
+  public async delete_noteTag({ request, response, auth }: HttpContext) {
     try {
+      const user = auth.user
+      if (!user) {
+        throw new Error('User not authenticated')
+      }
       const noteId = Number(request.params().note_id)
       const tagId = Number(request.params().tag_id)
-      const result = await this.service.deleteNoteTag(noteId, tagId)
+      const result = await this.service.deleteNoteTag(noteId, tagId, user)
 
       return response.ok({
         message: result.message,
