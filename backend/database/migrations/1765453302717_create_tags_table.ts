@@ -7,12 +7,7 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
       table.string('tag_name').notNullable()
-      table
-        .string('company_owner_email')
-        .notNullable()
-        .references('owner_email')
-        .inTable('companies')
-        .onDelete('CASCADE')
+      table.string('company_owner_email').notNullable()
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

@@ -53,4 +53,23 @@ export default class TagController {
       })
     }
   }
+  public async get_all_tags({ response, auth }: HttpContext) {
+    try {
+      const user = auth.user
+      if (!user) {
+        throw new Error('User not authenticated')
+      }
+      const result = await this.service.get_all_tags(user)
+
+      return response.ok({
+        message: result.message,
+        tags: result.tags,
+      })
+    } catch (error) {
+      return response.badRequest({
+        message: 'Tags fetch failed',
+        errors: error.messages || error.message,
+      })
+    }
+  }
 }

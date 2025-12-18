@@ -52,4 +52,22 @@ export default class TagsService {
       throw new Error(`Failed to delete tag: ${error.message}`)
     }
   }
+  public async get_all_tags(user: User) {
+    try {
+      if (user.role !== 'owner') {
+        throw new Error('Only owner can fetch tags')
+      }
+      const tags = await Tag.query()
+        .select('tag_name')
+        .where('company_owner_email', user.email)
+        .orderBy('created_at', 'desc')
+
+      return {
+        message: 'Tags fetched successfully',
+        tags,
+      }
+    } catch (error) {
+      throw new Error(`Failed to fetch tags: ${error.message}`)
+    }
+  }
 }

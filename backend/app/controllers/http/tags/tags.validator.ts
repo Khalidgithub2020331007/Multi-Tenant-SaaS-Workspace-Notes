@@ -16,6 +16,5 @@ export const tagDeleteValidator = vine.compile(
       .string()
       .minLength(3)
       .regex(/^[a-zA-Z0-9\s]+$/),
-    company_hostname: vine.string(),
   })
 )

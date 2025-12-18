@@ -15,7 +15,7 @@ type NotePayload = {
 type NoteCreatePayload = {
   title: string
   content: string
-  workspace_id: number
+  workspace_name: string
   company_hostname: string
   note_type: 'draft' | 'public' | 'private'
 }
@@ -28,7 +28,7 @@ export default class NoteService {
     try {
       // Check if workspace exists
       const workspace = await Workspace.query({ client: trx })
-        .where('id', payload.workspace_id)
+        .where('workspace_name', payload.workspace_name)
         .first()
       if (!workspace) {
         throw new Error('Workspace does not exist')
@@ -44,7 +44,7 @@ export default class NoteService {
       note.useTransaction(trx)
       note.title = payload.title
       note.content = payload.content
-      note.workspace_id = workspace.id
+      note.workspace_name = workspace.workspace_name
       note.author_user_id = user.id
       note.note_type = payload.note_type
       note.company_hostname = user.company_hostname
@@ -139,11 +139,11 @@ export default class NoteService {
       const note = await Note.query()
         .where('company_hostname', user.company_hostname)
         .where('note_type', 'public')
-        .first()
+
       if (!note) {
         throw new Error('Note does not exist')
       }
-      if (note.company_hostname !== user.company_hostname) {
+      if (note[0].company_hostname !== user.company_hostname) {
         throw new Error('Only the company member can see public note')
       }
 
@@ -166,6 +166,17 @@ export default class NoteService {
 
     return {
       message: 'Private and draft notes fetched successfully',
+      notes,
+    }
+  }
+  public async get_author_notes(user: User) {
+    const notes = await Note.query()
+      .where('company_hostname', user.company_hostname)
+      .where('author_user_id', user.id)
+      .orderBy('created_at', 'desc')
+
+    return {
+      message: 'Author notes fetched successfully',
       notes,
     }
   }

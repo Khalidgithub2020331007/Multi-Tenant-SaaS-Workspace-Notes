@@ -7,7 +7,7 @@ type Props = {
 const TopNavbar = ({ onLogout }: Props) => {
   const userStr = localStorage.getItem('loggedInUser');
   const user = userStr ? JSON.parse(userStr) : null;
-  const companyName = user?.companyHostname || '';
+  const companyName = user?.company_Hostname || '';
   const ownerName = user?.name || '';
 
   const handleLogout = async () => {

@@ -1,6 +1,5 @@
 
-
-const CreateNotes = () => {
+const MyHistory = () => {
   return (
     <div>
       <h1>Create Note</h1>
@@ -13,4 +12,4 @@ const CreateNotes = () => {
   );
 };
 
-export default CreateNotes;
+export default MyHistory;

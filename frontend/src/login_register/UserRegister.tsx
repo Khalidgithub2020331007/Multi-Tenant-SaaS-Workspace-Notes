@@ -19,18 +19,25 @@ const UserRegister = ({ goToPage }: Props) => {
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof User, string>>>({});
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setUser(prev => ({ ...prev, [name]: value }));
     setErrors(prev => ({ ...prev, [name]: undefined }));
+    setApiError('');
+    setSuccessMessage('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+    setApiError('');
+    setSuccessMessage('');
 
-    // frontend validation
+    // Frontend validation
     if (user.name.trim().length < 2) {
       setErrors({ name: 'Name must be at least 2 characters' });
       return;
@@ -51,15 +58,34 @@ const UserRegister = ({ goToPage }: Props) => {
       return;
     }
 
-
+    try {
+      setLoading(true);
       const res = await api.post('/user/register', user);
-      alert(res.data.message);
-      goToPage?.('userLogin');
+      setSuccessMessage(res.data.message);
+      setUser({
+        name: '',
+        email: '',
+        password: '',
+        company_hostname: '',
+        role: 'member',
+      });
+      setTimeout(() => goToPage?.('userLogin'), 1000);
+    } catch (err: any) {
+      setApiError(err.response?.data?.message || 'Registration failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4 space-y-4 bg-white shadow-lg rounded-lg">
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-md mx-auto p-6 space-y-4 bg-white shadow-lg rounded-lg"
+    >
       <h2 className="text-2xl font-bold text-center">User Registration</h2>
+
+      {apiError && <p className="text-red-500 text-center">{apiError}</p>}
+      {successMessage && <p className="text-green-500 text-center">{successMessage}</p>}
 
       <div>
         <input
@@ -111,9 +137,12 @@ const UserRegister = ({ goToPage }: Props) => {
 
       <button
         type="submit"
-        className="bg-green-500 hover:bg-green-600 text-white w-full p-3 rounded"
+        disabled={loading}
+        className={`w-full p-3 rounded text-white ${
+          loading ? 'bg-gray-400' : 'bg-green-500 hover:bg-green-600'
+        }`}
       >
-        Register User
+        {loading ? 'Registering...' : 'Register User'}
       </button>
 
       {goToPage && (

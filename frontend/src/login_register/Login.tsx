@@ -22,10 +22,18 @@ const UserLogin = ({ goToPage }: Props) => {
         alert('Wrong email or password');
         return;
       }
-
-      // ✅ Save logged-in user to localStorage
-      localStorage.setItem('loggedInUser', JSON.stringify(res.data.user));
-
+      console.log(res.data.user)
+      const backendUser = res.data.user;
+      const user = {
+        id: backendUser.id,
+        name: backendUser.name,
+        email: backendUser.email,
+        role: backendUser.role,
+        company_hostname: backendUser.companyHostname, // snake_case
+      };
+      localStorage.setItem('loggedInUser', JSON.stringify(user));
+      
+      console.log(user)
       alert(res.data.message);
 
       // Redirect based on role

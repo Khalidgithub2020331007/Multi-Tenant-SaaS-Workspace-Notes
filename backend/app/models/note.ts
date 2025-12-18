@@ -11,7 +11,7 @@ export default class Note extends BaseModel {
   declare id: number
 
   @column()
-  declare workspace_id: number
+  declare workspace_name: string
 
   @column()
   declare author_user_id: number
@@ -32,7 +32,7 @@ export default class Note extends BaseModel {
   @belongsTo(() => User, { foreignKey: 'author_user_id' })
   declare authorUser: BelongsTo<typeof User>
 
-  @belongsTo(() => Workspace, { foreignKey: 'workspace_id' })
+  @belongsTo(() => Workspace, { foreignKey: 'workspace_name' })
   declare workspace: BelongsTo<typeof Workspace>
 
   @column.dateTime({ autoCreate: true })

@@ -2,8 +2,8 @@ import { useState } from 'react';
 import UserRegister from './login_register/UserRegister';
 import Login from './login_register/Login';
 import CompanyRegister from './login_register/CompanyRegister';
-import OwnerDashboard from './dashboard/owner_dashboard';
-import MemberDashboard from './dashboard/member_dashboard';
+import OwnerDashboard from './dashboard/owner_components/owner_dashboard';
+import MemberDashboard from './dashboard/member_components/member_dashboard';
 
 type Page = 'userRegister' | 'userLogin' | 'companyRegister' | 'memberDashboard' | 'ownerDashboard';
 
@@ -58,8 +58,8 @@ function App() {
         {page === 'userRegister' && <UserRegister goToPage={setPage} />}
         {page === 'userLogin' && <Login goToPage={setPage} />}
         {page === 'companyRegister' && <CompanyRegister goToPage={setPage} />}
-        {page === 'ownerDashboard' && <OwnerDashboard />}
-        {page === 'memberDashboard' && <MemberDashboard />}
+        {page === 'ownerDashboard' && <OwnerDashboard onLogout={() => setPage('userLogin')} />}
+        {page === 'memberDashboard' && <MemberDashboard onLogout={() => setPage('userLogin')} />}
       </main>
     </div>
   );

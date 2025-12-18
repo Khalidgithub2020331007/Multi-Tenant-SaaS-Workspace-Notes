@@ -136,4 +136,23 @@ export default class NoteController {
       })
     }
   }
+  public async author_notes({ response, auth }: HttpContext) {
+    try {
+      const user = auth.user
+      if (!user) {
+        throw new Error('User not authenticated')
+      }
+      const result = await this.service.get_author_notes(user)
+
+      return response.ok({
+        message: result.message,
+        notes: result.notes,
+      })
+    } catch (error) {
+      return response.badRequest({
+        message: 'Note search failed',
+        errors: error.messages || error.message,
+      })
+    }
+  }
 }

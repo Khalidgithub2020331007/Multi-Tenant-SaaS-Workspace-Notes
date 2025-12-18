@@ -28,7 +28,7 @@ export interface Note {
   title: string;
   content: string;
   note_type: NoteStatus;
-  workspace_id: number;
+  workspace_name: string;
   author_user_id: number;
   company_hostname: string;
   upvotes: number;

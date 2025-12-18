@@ -61,6 +61,7 @@ export default class WorkspaceService {
       throw new Error(`Failed to delete workspace: ${error.message}`)
     }
   }
+  //  workspace get_all_workspaces service
   public async get_all_workspaces(user: User) {
     try {
       const workspaces = await Workspace.query()

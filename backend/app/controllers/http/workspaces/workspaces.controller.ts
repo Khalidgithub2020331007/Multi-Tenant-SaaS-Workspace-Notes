@@ -9,7 +9,7 @@ export default class WorkspaceController {
   constructor() {
     this.service = new WorkspaceService()
   }
-
+  // workspace create controller
   public async create_workspace({ request, response, auth }: HttpContext) {
     try {
       // 1️⃣ Validate the request data
@@ -68,6 +68,7 @@ export default class WorkspaceController {
       })
     }
   }
+  //  workspace get_all_workspaces controller
   public async get_all_workspaces({ response, auth }: HttpContext) {
     try {
       const user = auth.user

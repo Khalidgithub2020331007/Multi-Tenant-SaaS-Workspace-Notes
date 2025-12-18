@@ -12,6 +12,7 @@ router
     router.get('/search', [NoteController, 'search_note'])
     router.get('/show_notes', [NoteController, 'public_shownotes'])
     router.get('/private_shownotes', [NoteController, 'private_shownotes'])
+    router.get('/author_notes', [NoteController, 'author_notes'])
   })
   .prefix('/note')
   .use([middleware.auth()])

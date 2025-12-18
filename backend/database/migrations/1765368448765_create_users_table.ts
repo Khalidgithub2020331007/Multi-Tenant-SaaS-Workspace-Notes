@@ -11,12 +11,7 @@ export default class extends BaseSchema {
       table.string('email').unique().notNullable()
       table.string('password').notNullable()
 
-      table
-        .string('company_hostname')
-        .notNullable()
-        .references('hostname')
-        .inTable('companies')
-        .onDelete('CASCADE')
+      table.string('company_hostname').notNullable()
 
       table.enum('role', ['owner', 'member']).notNullable()
 
