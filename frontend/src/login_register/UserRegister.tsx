@@ -37,7 +37,6 @@ const UserRegister = ({ goToPage }: Props) => {
     setApiError('');
     setSuccessMessage('');
 
-    // Frontend validation
     if (user.name.trim().length < 2) {
       setErrors({ name: 'Name must be at least 2 characters' });
       return;

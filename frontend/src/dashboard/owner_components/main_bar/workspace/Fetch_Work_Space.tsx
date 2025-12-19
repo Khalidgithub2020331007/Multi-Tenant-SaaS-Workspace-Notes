@@ -32,7 +32,6 @@ const Fetch_Work_Space = () => {
       .finally(() => setLoading(false));
   }
 
-  if (!user) return <p className="text-red-600">User not logged in</p>;
 
   const handleDelete = async (workspaceName: string) => {
     if (!confirm(`Are you sure you want to delete workspace "${workspaceName}"?`)) return;
@@ -50,6 +49,7 @@ const Fetch_Work_Space = () => {
       else alert('Failed to delete workspace');
     }
   };
+  if (!user) return <p className="text-red-600">User not logged in</p>;
 
   return (
     <div className="max-w-4xl mx-auto p-6">

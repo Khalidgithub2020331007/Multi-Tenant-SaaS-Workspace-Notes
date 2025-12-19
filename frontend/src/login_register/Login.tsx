@@ -29,14 +29,13 @@ const UserLogin = ({ goToPage }: Props) => {
         name: backendUser.name,
         email: backendUser.email,
         role: backendUser.role,
-        company_hostname: backendUser.companyHostname, // snake_case
+        company_hostname: backendUser.companyHostname, 
       };
       localStorage.setItem('loggedInUser', JSON.stringify(user));
       
       console.log(user)
       alert(res.data.message);
 
-      // Redirect based on role
            if (goToPage) {
   goToPage(res.data.user.role === 'owner' ? 'ownerDashboard' : 'memberDashboard');
 }

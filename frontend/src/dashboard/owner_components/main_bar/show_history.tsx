@@ -21,10 +21,9 @@ const ShowHistory = () => {
       const res = await api.get('/note_history/author')
       console.log('✅ API Response:', res.data)
 
-      // fix date field if necessary
       const fixedHistories = res.data.histories.map((h: any) => ({
         ...h,
-        createdAt: h.createdAt, // ensure correct camelCase
+        createdAt: h.createdAt,
       }))
 
       setHistories(fixedHistories)

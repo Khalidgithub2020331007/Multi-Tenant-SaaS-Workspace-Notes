@@ -25,7 +25,6 @@ const CompanyRegister = ({ goToPage }: Props) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCompany(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
-    // typing করলে সেই field-এর error clear হবে
     setErrors(prev => ({ ...prev, [e.target.name]: undefined }));
   };
 
@@ -33,7 +32,6 @@ const CompanyRegister = ({ goToPage }: Props) => {
     e.preventDefault();
     setErrors({});
 
-    // 🔹 Frontend validation
     if (company.company_name.trim().length < 2) {
       setErrors({ company_name: 'Company name must be at least 2 characters' });
       return;
@@ -58,7 +56,6 @@ const CompanyRegister = ({ goToPage }: Props) => {
       return;
     }
 
-    // 🔹 Backend call
     try {
       setLoading(true);
        await api.post('/company/register', company);
@@ -72,7 +69,6 @@ const CompanyRegister = ({ goToPage }: Props) => {
       } else {
         alert('Network error or server is down');
       }
-      // alert(err.message);
     } finally {
       setLoading(false);
     }

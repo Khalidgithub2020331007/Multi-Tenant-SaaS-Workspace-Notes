@@ -22,7 +22,6 @@ const PublicNotes = () => {
 
       console.log('✅ Public Note API Response:', res.data)
 
-      setNotes(res.data.note) // 🔥 array সেট করা হচ্ছে
     } catch (err: any) {
       console.error('❌ Public Note Fetch Error:', err)
       setError(err.response?.data?.message || 'Failed to fetch public notes')

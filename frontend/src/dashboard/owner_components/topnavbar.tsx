@@ -12,12 +12,12 @@ const TopNavbar = ({ onLogout }: Props) => {
 
   const handleLogout = async () => {
     try {
-      await api.post('/user/logout'); // backend logout call
+      await api.post('/user/logout'); 
     } catch (err: unknown) {
       console.error('Logout failed:', err);
     } finally {
-      localStorage.removeItem('loggedInUser'); // frontend logout
-      onLogout(); // App কে inform
+      localStorage.removeItem('loggedInUser'); 
+      onLogout();
     }
   };
 
