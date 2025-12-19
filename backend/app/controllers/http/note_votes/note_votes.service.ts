@@ -12,7 +12,6 @@ export default class NoteVoteService {
         .andWhere('voter_user_id', user.id)
         .first()
 
-      // 🔁 Vote exists → change vote
       if (existingVote) {
         if (existingVote.vote_value === voteValue) {
           const current = await Note.query({ client: trx }).where('id', note.id).first()

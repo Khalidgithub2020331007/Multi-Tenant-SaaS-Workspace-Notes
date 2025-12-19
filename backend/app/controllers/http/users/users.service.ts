@@ -41,17 +41,4 @@ export default class UserRegisterService {
       user,
     }
   }
-  public async user_login(email: string, password: string) {
-    // 1️⃣ Find the user by email and password
-    const user = await User.query().where('email', email).first()
-    const isPasswordValid = user ? await hash.verify(user.password, password) : false
-    if (!user || !isPasswordValid) {
-      throw new Error('Invalid Credentials')
-    }
-
-    return {
-      message: 'User logged in successfully',
-      user,
-    }
-  }
 }

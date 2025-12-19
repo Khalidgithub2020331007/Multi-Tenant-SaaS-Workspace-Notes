@@ -119,11 +119,10 @@ export default class NoteService {
       const note = await Note.query()
         .whereILike('title', title)
         .where('company_hostname', user.company_hostname)
-        .first()
       if (!note) {
         throw new Error('Note does not exist')
       }
-      if (note.company_hostname !== user.company_hostname) {
+      if (note[0].company_hostname !== user.company_hostname) {
         throw new Error('Only the company member can search')
       }
       return {
