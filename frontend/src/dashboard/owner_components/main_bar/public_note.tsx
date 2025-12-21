@@ -8,6 +8,8 @@ type Note = {
   noteType: 'draft' | 'public' | 'private'
   createdAt: string
   workspaceName: string
+  upvotes: string 
+  downvotes: string
 }
 
 const PublicNotes = () => {
@@ -54,27 +56,24 @@ const PublicNotes = () => {
         {notes.map((note) => (
           <div
             key={note.id}
-            className="border rounded-lg p-5 shadow-sm bg-white"
+            className="border rounded-lg p-5 shadow-sm bg-white cursor-pointer hover:bg-gray-50"
+            onClick={() => console.log('Clicked Note:', note)}
           >
             <p className="text-sm text-gray-500">
-              Workspace:{' '}
-              <span className="font-medium">{note.workspaceName}</span>
+              Workspace: <span className="font-medium">{note.workspaceName}</span>
             </p>
+            <h2 className="text-xl font-bold text-gray-800 mt-1">Title: {note.title}</h2>
+            <p className="text-gray-700 mt-2 whitespace-pre-line">Content: {note.content}</p>
 
-            <h2 className="text-xl font-bold text-gray-800 mt-1">
-              Title:{note.title}
-            </h2>
-
-            <p className="text-gray-700 mt-2 whitespace-pre-line">
-              Content:{note.content}
-            </p>
+            <p>👍 Upvote: {note.upvotes}</p>
+            <p>👎 Downvote: {note.downvotes}</p>
 
             <p className="text-xs text-gray-400 pt-3">
-              Created at:{' '}
-              {new Date(note.createdAt).toLocaleString()}
+              Created at: {new Date(note.createdAt).toLocaleString()}
             </p>
           </div>
         ))}
+
       </div>
     </div>
   )
