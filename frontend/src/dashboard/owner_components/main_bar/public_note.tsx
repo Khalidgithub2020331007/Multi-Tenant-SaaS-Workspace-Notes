@@ -11,6 +11,7 @@ type Note = {
   upvotes: number
   downvotes: number
   totalvotes: number
+
 }
 
 const PublicNotes = () => {
@@ -60,6 +61,7 @@ const PublicNotes = () => {
             key={note.id}
             className="border rounded-lg p-5 shadow-sm bg-white cursor-pointer hover:bg-gray-50"
             onClick={() => console.log('Clicked Note:', note)} // <-- এখানে
+
           >
             <p className="text-sm text-gray-500">
               Workspace: <span className="font-medium">{note.workspaceName}</span>
@@ -68,6 +70,7 @@ const PublicNotes = () => {
             <p className="text-gray-700 mt-2 whitespace-pre-line">Content: {note.content}</p>
             <p>👍:{note.upvotes}</p>
             <p>👎:{note.downvotes}</p> 
+
 
             <p className="text-xs text-gray-400 pt-3">
               Created at: {new Date(note.createdAt).toLocaleString()}
