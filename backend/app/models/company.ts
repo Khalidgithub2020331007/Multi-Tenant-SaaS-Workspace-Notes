@@ -43,7 +43,4 @@ export default class Company extends BaseModel {
 
   @hasMany(() => Tag)
   declare tags: HasMany<typeof Tag>
-
-  @hasMany(() => Note)
-  declare notes: HasMany<typeof Note>
 }

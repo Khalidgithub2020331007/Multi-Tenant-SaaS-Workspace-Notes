@@ -1,7 +1,6 @@
 import './companies/companies.routes.ts'
 import './note_history/note_history.routes.ts'
 import './note_tags/note_tags.routes.ts'
-import './note_vote_counters/note_vote_counters.routes.ts'
 import './note_votes/note_votes.routes.ts'
 import './notes/notes.routes.ts'
 import './tags/tags.routes.ts'

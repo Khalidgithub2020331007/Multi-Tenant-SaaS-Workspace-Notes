@@ -14,47 +14,46 @@ const FetchTags = () => {
   const [loading, setLoading] = useState<boolean>(true)
 
   if (!user) {
-    console.log('No user logged in')
+    // console.log('No user logged in')
     return <p className="text-red-600">User not logged in</p>
   }
 
-  // 🔥 Fetch tags immediately
+  //  Fetch tags immediately
   if (loading) {
-    console.log('Fetching tags from backend...')
+    // console.log('Fetching tags from backend...')
     api
-      .get('/tag/all', { withCredentials: true })
+      .get('/tag/all',)
       .then(res => {
-        console.log('Response from backend:', res.data)
+        // console.log('Response from backend:', res.data)
         const fetchedTags = res.data.tags || []
-        console.log('Fetched tags array:', fetchedTags)
+        // console.log('Fetched tags array:', fetchedTags)
         setTags(fetchedTags)
         setLoading(false)
       })
       .catch(err => {
-        console.log('Error fetching tags:', err)
+        // console.log('Error fetching tags:', err)
         setError(err instanceof Error ? err.message : 'Failed to fetch tags')
         setLoading(false)
       })
   }
 
   const handleDelete = async (tagName: string) => {
-    console.log('Deleting tag:', tagName)
+    // console.log('Deleting tag:', tagName)
     try {
       await api.post(
         '/tag/delete',
         { tag_name: tagName },
-        { withCredentials: true }
       )
-      console.log('Deleted tag successfully:', tagName)
+      // console.log('Deleted tag successfully:', tagName)
       setTags(prev => prev.filter(t => t.tagName !== tagName))
     } catch (err: unknown) {
-      console.log('Error deleting tag:', err)
+      // console.log('Error deleting tag:', err)
       if (err instanceof Error) setError(err.message)
       else setError('Failed to delete tag')
     }
   }
 
-  console.log('Current tags in state:', tags)
+  // console.log('Current tags in state:', tags)
 
   return (
     <div className="max-w-md mx-auto p-4 bg-white shadow rounded">

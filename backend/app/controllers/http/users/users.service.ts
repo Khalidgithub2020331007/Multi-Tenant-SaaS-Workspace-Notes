@@ -1,6 +1,5 @@
 import Company from '#models/company'
 import User from '#models/user'
-import hash from '@adonisjs/core/services/hash'
 
 type UserRegisterPayload = {
   name: string
@@ -17,6 +16,7 @@ export default class UserRegisterService {
   public async user_register(payload: UserRegisterPayload) {
     //chech if company exists
     const companyExists = await Company.query().where('hostname', payload.company_hostname).first()
+    // console.log('Company exists:', companyExists)
     if (!companyExists) {
       throw new Error('Company does not exist')
     }

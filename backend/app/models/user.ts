@@ -6,7 +6,9 @@ import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { compose } from '@adonisjs/core/helpers'
 import Company from './company.js'
 import Note from './note.js'
+import NoteHistory from './note_history.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import Tag from './tag.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
@@ -47,4 +49,8 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @hasMany(() => Note)
   declare notes: HasMany<typeof Note>
+  @hasMany(() => NoteHistory)
+  declare noteHistory: HasMany<typeof NoteHistory>
+  @hasMany(() => Tag)
+  declare tags: HasMany<typeof Tag>
 }

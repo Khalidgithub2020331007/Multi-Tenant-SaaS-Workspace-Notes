@@ -1,7 +1,8 @@
 import vine from '@vinejs/vine'
 
-export const noteVoteValidator = vine.compile(
+export const voteValidator = vine.compile(
   vine.object({
-    vote_value: vine.number(),
+    note_id: vine.number(),
+    vote_value: vine.enum([1, -1] as const),
   })
 )

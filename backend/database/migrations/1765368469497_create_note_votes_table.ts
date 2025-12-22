@@ -1,23 +1,33 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
 
-export default class extends BaseSchema {
+export default class NoteVotesTableSchema extends BaseSchema {
   protected tableName = 'note_votes'
 
-  async up() {
+  public async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
-      table.integer('note_id').unsigned()
-      table.integer('voter_user_id').unsigned()
+      table.increments('id').primary()
+      table
+        .integer('note_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('notes')
+        .onDelete('CASCADE')
+      table
+        .integer('voter_user_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE')
+      table.integer('vote_value').notNullable() // 1 or -1
+      table.timestamps(true)
 
-      table.integer('vote_value').notNullable()
-      table.unique(['note_id', 'voter_user_id'])
-
-      table.timestamp('created_at')
-      table.timestamp('updated_at')
+      table.unique(['note_id', 'voter_user_id']) // same user can vote once
     })
   }
 
-  async down() {
-    this.schema.dropTable(this.tableName)
+  public async down() {
+    this.schema.dropTableIfExists(this.tableName)
   }
 }

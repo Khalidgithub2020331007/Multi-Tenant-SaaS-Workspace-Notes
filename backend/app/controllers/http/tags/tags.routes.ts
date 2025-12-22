@@ -10,4 +10,4 @@ router
     router.get('/all', [TagController, 'get_all_tags'])
   })
   .prefix('/tag')
-  .use([middleware.auth(), middleware.check_ownerRole()])
+  .use([middleware.auth()])

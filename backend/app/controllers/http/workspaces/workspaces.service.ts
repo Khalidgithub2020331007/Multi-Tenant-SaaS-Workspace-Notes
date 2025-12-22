@@ -65,7 +65,7 @@ export default class WorkspaceService {
   public async get_all_workspaces(user: User) {
     try {
       const workspaces = await Workspace.query()
-        .select('workspace_name')
+        .select('*')
         .where('company_hostname', user.company_hostname)
         .orderBy('created_at', 'desc')
 

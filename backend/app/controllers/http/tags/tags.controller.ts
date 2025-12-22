@@ -20,7 +20,7 @@ export default class TagController {
       }
       const payload = await request.validateUsing(tagCreateValidator)
 
-      const result = await this.service.createTag(payload.tag_name, user!.email, user!)
+      const result = await this.service.createTag(payload.tag_name, user!)
 
       return response.created({
         message: result.message,

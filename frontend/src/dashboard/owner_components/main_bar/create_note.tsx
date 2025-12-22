@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
 import api from '../../../api/axios'
 
-type Workspace = { workspaceName: string }
+type Workspace = {
+  id: number
+  workspaceName: string
+}
 type Tag = { tagName: string }
 
 const CreateNote = () => {
@@ -9,7 +12,7 @@ const CreateNote = () => {
   const user = userStr ? JSON.parse(userStr) : null
 
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
-  const [selectedWorkspace, setSelectedWorkspace] = useState('')
+  const [selectedWorkspace, setSelectedWorkspace] = useState<number | null>(null)
   const [tags, setTags] = useState<Tag[]>([])
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [title, setTitle] = useState('')
@@ -19,7 +22,7 @@ const CreateNote = () => {
   const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // ✅ useEffect only runs once after mount
+  //  useEffect only runs once after mount
   useEffect(() => {
     if (!user) {
       setLoading(false)
@@ -29,16 +32,19 @@ const CreateNote = () => {
     const fetchData = async () => {
       try {
         const [wsRes, tagRes] = await Promise.all([
-          api.get('/workspace/all', { withCredentials: true }),
-          api.get('/tag/all', { withCredentials: true }),
+          api.get('/workspace/all', ),
+          api.get('/tag/all', ),
         ])
-        console.log('Fetched workspaces:', wsRes.data.workspaces)
-        console.log('Fetched tags:', tagRes.data.tags)
+        // console.log('Fetched workspaces:', wsRes.data.workspaces)
+        // console.log('Fetched tags:', tagRes.data.tags)
         setWorkspaces(wsRes.data.workspaces)
-        if (wsRes.data.workspaces.length > 0) setSelectedWorkspace(wsRes.data.workspaces[0].workspaceName)
+        console.log('Fetched workspaces:', wsRes.data.workspaces)
+        // console.log('workspace',wsRes.data)
+        console.log('Fetched tags:', tagRes.data.tags)
+        if (wsRes.data.workspaces.length > 0) setSelectedWorkspace(wsRes.data.workspaces[0].id)
         setTags(tagRes.data.tags || [])
-      } catch (err: any) {
-        console.error('Error fetching workspaces or tags:', err.response || err)
+      } catch (err: unknown) {
+        console.error('Error fetching workspaces or tags:', err)
         setError('Failed to fetch workspaces or tags')
       } finally {
         setLoading(false)
@@ -46,7 +52,7 @@ const CreateNote = () => {
     }
 
     fetchData()
-  }, []) // ✅ empty dependency array: run only once
+  }, []) //  empty dependency array: run only once
 
   const handleTagSelect = (tagName: string) => {
     setSelectedTags(prev =>
@@ -59,40 +65,42 @@ const CreateNote = () => {
     setError(null)
     setSuccess(null)
 
-    console.log('Selected Workspace:', selectedWorkspace)
-    console.log('Selected Tags:', selectedTags)
-    console.log('Title:', title)
-    console.log('Content:', content)
-    console.log('Note Type:', noteType)
+    // console.log('Selected Workspace:', selectedWorkspace)
+    // console.log('Selected Tags:', selectedTags)
+    // console.log('Title:', title)
+    // console.log('Content:', content)
+    // console.log('Note Type:', noteType)
 
-    if (!selectedWorkspace) return setError('Please select a workspace')
+    if (selectedWorkspace===null) return setError('Please select a workspace')
     if (!title.trim() || !content.trim()) return setError('Title and content are required')
 
     try {
+      console.log('selectedWorkspace',selectedWorkspace)
       const payload = {
         title,
         content,
-        workspace_name: selectedWorkspace,
+        workspace_id: selectedWorkspace,
         note_type: noteType,
         tags: selectedTags,
         company_hostname: user.company_hostname,
       }
+      console.log('payload',payload)
 
-      console.log('Sending payload to backend:', payload)
+      // console.log('Sending payload to backend:', payload)
 
-      const res = await api.post('/note/create', payload, { withCredentials: true })
-      console.log('Response from backend:', res.data)
+      const res = await api.post('/note/create', payload,)
+      // console.log('Response from backend:', res.data)
 
       setSuccess(res.data.message)
       setTitle('')
       setContent('')
       setSelectedTags([])
       setNoteType('draft')
-    } catch (err: any) {
-      console.error('Error creating note:', err.response || err)
-      if (err.response?.data?.message) setError(err.response.data.message)
-      else if (err instanceof Error) setError(err.message)
-      else setError('Failed to create note')
+      setSelectedWorkspace(null)
+    } catch (err: unknown) {
+      console.error('Error creating note:', err)
+      setError('Failed to create note')
+     
     }
   }
 
@@ -111,12 +119,15 @@ const CreateNote = () => {
             <label className="block mb-1 font-medium">Workspace</label>
             <select
               className="w-full border rounded px-3 py-2"
-              value={selectedWorkspace}
-              onChange={(e) => setSelectedWorkspace(e.target.value)}
+              value={selectedWorkspace??''}
+              onChange={(e) =>
+                setSelectedWorkspace(Number(e.target.value))
+                // console.log('Selected workspace changed to:', e.target.value)
+              }
             >
               <option value="">Select Workspace</option>
               {workspaces.map(ws => (
-                <option key={ws.workspaceName} value={ws.workspaceName}>
+                <option key={ws.id} value={ws.id}>
                   {ws.workspaceName}
                 </option>
               ))}

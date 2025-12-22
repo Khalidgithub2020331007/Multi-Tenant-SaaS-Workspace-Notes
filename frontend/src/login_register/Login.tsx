@@ -22,7 +22,7 @@ const UserLogin = ({ goToPage }: Props) => {
         alert('Wrong email or password');
         return;
       }
-      console.log(res.data.user)
+      // console.log(res.data.user)
       const backendUser = res.data.user;
       const user = {
         id: backendUser.id,
@@ -33,7 +33,7 @@ const UserLogin = ({ goToPage }: Props) => {
       };
       localStorage.setItem('loggedInUser', JSON.stringify(user));
       
-      console.log(user)
+      // console.log(user)
       alert(res.data.message);
 
            if (goToPage) {

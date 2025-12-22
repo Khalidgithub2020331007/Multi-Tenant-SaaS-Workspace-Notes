@@ -5,13 +5,25 @@ export default class NotesTableSchema extends BaseSchema {
 
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
+      table.increments('id').primary()
 
       // workspace_name foreign key
-      table.string('workspace_name')
+      table
+        .integer('workspace_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('workspaces')
+        .onDelete('CASCADE')
 
       // author_user_id foreign key
-      table.integer('author_user_id')
+      table
+        .integer('author_user_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE')
 
       table.string('company_hostname').notNullable()
       table.string('title').notNullable()
@@ -20,6 +32,7 @@ export default class NotesTableSchema extends BaseSchema {
       table.enum('note_type', ['draft', 'public', 'private']).notNullable().defaultTo('draft')
       table.integer('upvotes').defaultTo(0)
       table.integer('downvotes').defaultTo(0)
+      table.integer('totalvotes').defaultTo(0)
 
       table.timestamps(true)
     })

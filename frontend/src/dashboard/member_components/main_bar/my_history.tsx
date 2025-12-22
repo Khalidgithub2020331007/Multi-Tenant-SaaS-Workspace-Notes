@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react'
 import api from '../../../api/axios'
+import axios from 'axios'
+interface ApiErrorResponse {
+  message: string;
+  code?: string;
+  errors?: Record<string, string[]>;
+}
+
 type History = {
   id: number
   noteId: number
@@ -15,28 +22,33 @@ const ShowHistory = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const fetchHistory = async () => {
+  
+
+  useEffect(() => {
+    const fetchHistory = async () => {
     try {
-      console.log('📡 Fetching author note history...')
+      // console.log('📡 Fetching author note history...')
       const res = await api.get('/note_history/author')
-      console.log('✅ API Response:', res.data)
+      // console.log(' API Response:', res.data)
 
       // fix date field if necessary
-      const fixedHistories = res.data.histories.map((h: any) => ({
+      const fixedHistories = res.data.histories.map((h: History) => ({
         ...h,
         createdAt: h.createdAt, // ensure correct camelCase
       }))
 
       setHistories(fixedHistories)
-    } catch (err: any) {
+    } catch (err) {
       console.error('❌ Fetch Error:', err)
-      setError(err.response?.data?.message || 'Failed to fetch note history')
+      if (axios.isAxiosError<ApiErrorResponse>(err)) {
+        setError(err?.response?.data?.message || 'Failed to fetch note history')
+      }
+
+      
     } finally {
       setLoading(false)
     }
   }
-
-  useEffect(() => {
     fetchHistory()
   }, [])
 

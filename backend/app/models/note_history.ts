@@ -20,11 +20,15 @@ export default class NoteHistory extends BaseModel {
   @column()
   declare note_content: string
   @column()
+  declare note_type: 'draft' | 'public' | 'private'
+  @column()
   declare author_user_id: number
 
-  @belongsTo(() => User, { foreignKey: 'author_user_id' })
+  @belongsTo(() => User, {
+    foreignKey: 'author_user_id',
+  })
   declare authorUser: BelongsTo<typeof User>
-  @belongsTo(() => Note, { foreignKey: 'note_id' })
+  @belongsTo(() => Note)
   declare note: BelongsTo<typeof Note>
 
   @column.dateTime({ autoCreate: true })

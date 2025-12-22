@@ -1,8 +1,8 @@
-import { DateTime } from 'luxon'
 import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
-import User from './user.js'
 import Note from './note.js'
+import User from './user.js'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import { DateTime } from 'luxon'
 
 export default class NoteVote extends BaseModel {
   @column({ isPrimary: true })
@@ -15,7 +15,7 @@ export default class NoteVote extends BaseModel {
   declare voter_user_id: number
 
   @column()
-  declare vote_value: number // 1 = upvote, -1 = downvote
+  declare vote_value: 1 | -1
 
   @belongsTo(() => Note)
   declare note: BelongsTo<typeof Note>

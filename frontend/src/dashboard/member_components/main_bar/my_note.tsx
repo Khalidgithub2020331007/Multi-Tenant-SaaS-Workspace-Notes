@@ -5,8 +5,8 @@ type Note = {
   id: number
   title: string
   content: string
-  note_type: 'draft' | 'public' | 'private'
-  created_at: string
+  noteType: 'draft' | 'public' | 'private'
+  createdAt: string
 }
 
 const MyNote = () => {
@@ -16,30 +16,32 @@ const MyNote = () => {
   const [editingNoteId, setEditingNoteId] = useState<number | null>(null)
 
   // ================= FETCH NOTES =================
-  const fetchNotes = async () => {
+
+  useEffect(() => {
+      const fetchNotes = async () => {
     try {
       const res = await api.get('/note/author_notes')
-      console.log('Fetched Notes:', res.data.notes)
+      console.log('API Response:', res.data)
+      // console.log('Fetched Notes:', res.data.notes)
 
       // backend -> frontend field mapping
-      const fixedNotes = res.data.notes.map((note: any) => ({
+      const fixedNotes = res.data.notes.map((note: Note) => ({
         id: note.id,
         title: note.title,
         content: note.content,
-        note_type: note.noteType, // camelCase → snake_case
-        created_at: note.createdAt,
+        noteType: note.noteType, // camelCase → snake_case
+        createdAt: note.createdAt,
       }))
 
       setNotes(fixedNotes)
       setLoading(false)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Fetch Error:', err)
-      setError(err.response?.data?.message || 'Failed to fetch notes')
+      setError( 'Failed to fetch notes')
       setLoading(false)
     }
   }
 
-  useEffect(() => {
     fetchNotes()
   }, [])
 
@@ -49,21 +51,21 @@ const MyNote = () => {
     if (!note) return
 
     try {
-      console.log('Updating Note Payload:', note)
+      // console.log('Updating Note Payload:', note)
 
       const res = await api.patch(`/note/${noteId}`, {
         title: note.title,
         content: note.content,
-        note_type: note.note_type,
+        noteType: note.noteType,
       })
 
       console.log('Update Response:', res.data)
 
       setEditingNoteId(null)
       alert('Note updated successfully')
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Update Error:', err)
-      alert(err.response?.data?.message || 'Update failed')
+      alert('Update failed')
     }
   }
 
@@ -142,14 +144,14 @@ const MyNote = () => {
                   {isEditing ? (
                     <select
                       className="border px-2 py-1"
-                      value={note.note_type}
+                      value={note.noteType}
                       onChange={(e) =>
                         setNotes((prev) =>
                           prev.map((n) =>
                             n.id === note.id
                               ? {
                                   ...n,
-                                  note_type: e.target.value as
+                                  noteType: e.target.value as
                                     | 'draft'
                                     | 'private'
                                     | 'public',
@@ -164,13 +166,13 @@ const MyNote = () => {
                       <option value="public">Public</option>
                     </select>
                   ) : (
-                    note.note_type
+                    note.noteType
                   )}
                 </td>
 
                 {/* CREATED AT */}
                 <td className="border px-4 py-2">
-                  {new Date(note.created_at).toLocaleString('en-US', {
+                  {new Date(note.createdAt).toLocaleString('en-US', {
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric',

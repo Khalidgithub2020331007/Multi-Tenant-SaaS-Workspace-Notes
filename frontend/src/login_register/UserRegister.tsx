@@ -20,22 +20,19 @@ const UserRegister = ({ goToPage }: Props) => {
 
   const [errors, setErrors] = useState<Partial<Record<keyof User, string>>>({});
   const [loading, setLoading] = useState(false);
-  const [apiError, setApiError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setUser(prev => ({ ...prev, [name]: value }));
     setErrors(prev => ({ ...prev, [name]: undefined }));
-    setApiError('');
-    setSuccessMessage('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors({});
-    setApiError('');
-    setSuccessMessage('');
+    setErrors({}); 
+
+    // console.log('Registering user with data:', user);
+
 
     if (user.name.trim().length < 2) {
       setErrors({ name: 'Name must be at least 2 characters' });
@@ -60,20 +57,19 @@ const UserRegister = ({ goToPage }: Props) => {
     try {
       setLoading(true);
       const res = await api.post('/user/register', user);
-      setSuccessMessage(res.data.message);
-      setUser({
-        name: '',
-        email: '',
-        password: '',
-        company_hostname: '',
-        role: 'member',
-      });
-      setTimeout(() => goToPage?.('userLogin'), 1000);
-    } catch (err: any) {
-      setApiError(err.response?.data?.message || 'Registration failed');
+      console.log('Registration successful:', res.data);
+
+      if (goToPage) goToPage('userLogin');
+    } catch (err: unknown) {
+      console.error('Registration Error:', err);
+
+      if (err instanceof Error) {
+        console.error('Error message', err.message)
+      }
     } finally {
       setLoading(false);
     }
+
   };
 
   return (
@@ -83,8 +79,6 @@ const UserRegister = ({ goToPage }: Props) => {
     >
       <h2 className="text-2xl font-bold text-center">User Registration</h2>
 
-      {apiError && <p className="text-red-500 text-center">{apiError}</p>}
-      {successMessage && <p className="text-green-500 text-center">{successMessage}</p>}
 
       <div>
         <input

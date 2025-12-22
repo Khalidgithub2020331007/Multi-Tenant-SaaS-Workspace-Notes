@@ -15,7 +15,7 @@ type NotePayload = {
 type NoteCreatePayload = {
   title: string
   content: string
-  workspace_name: string
+  workspace_id: number
   company_hostname: string
   note_type: 'draft' | 'public' | 'private'
 }
@@ -28,7 +28,7 @@ export default class NoteService {
     try {
       // Check if workspace exists
       const workspace = await Workspace.query({ client: trx })
-        .where('workspace_name', payload.workspace_name)
+        .where('id', payload.workspace_id)
         .first()
       if (!workspace) {
         throw new Error('Workspace does not exist')
@@ -44,7 +44,7 @@ export default class NoteService {
       note.useTransaction(trx)
       note.title = payload.title
       note.content = payload.content
-      note.workspace_name = workspace.workspace_name
+      note.workspace_id = workspace.id
       note.author_user_id = user.id
       note.note_type = payload.note_type
       note.company_hostname = user.company_hostname

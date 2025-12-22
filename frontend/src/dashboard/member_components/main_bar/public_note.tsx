@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react'
 import api from '../../../api/axios'
+import axios from 'axios'
+interface ApiErrorResponse {
+  message: string;
+  code?: string;
+  errors?: Record<string, string[]>;
+}
+
 
 type Note = {
   id: number
@@ -10,28 +17,34 @@ type Note = {
   workspaceName: string
 }
 
+
 const PublicNotes = () => {
   const [notes, setNotes] = useState<Note[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const fetchPublicNotes = async () => {
+
+
+  useEffect(() => {
+      const fetchPublicNotes = async () => {
     try {
-      console.log('📡 Fetching public notes...')
+      // console.log('📡 Fetching public notes...')
       const res = await api.get('/note/show_notes')
 
-      console.log('✅ Public Note API Response:', res.data)
+      // console.log(' Public Note API Response:', res.data)
 
-      setNotes(res.data.note) // 🔥 array সেট করা হচ্ছে
-    } catch (err: any) {
+      setNotes(res.data.note) //  array সেট করা হচ্ছে
+    } catch (err) {
       console.error('❌ Public Note Fetch Error:', err)
-      setError(err.response?.data?.message || 'Failed to fetch public notes')
-    } finally {
+      if (axios.isAxiosError<ApiErrorResponse>(error)) {
+        setError(error?.response?.data?.message || 'Failed to fetch public notes')
+ 
+      }
+    }
+     finally {
       setLoading(false)
     }
   }
-
-  useEffect(() => {
     fetchPublicNotes()
   }, [])
 

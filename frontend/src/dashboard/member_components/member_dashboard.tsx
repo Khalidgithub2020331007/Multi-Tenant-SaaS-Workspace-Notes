@@ -48,10 +48,10 @@ const MemberDashboard = ({ onLogout }: { onLogout: () => void }) => {
 
       {/* Main Content */}
       <main className="flex-1 p-4 overflow-auto">
-        {page === 'createNote' && <CreateNote goToPage={setPage} />}
-        {page === 'myNotes' && <MyNote goToPage={setPage} />}
-        {page === 'publicNotes' && <PublicNotes goToPage={setPage} />}
-        {page === 'myHistory' && <MyHistory goToPage={setPage} />}
+        {page === 'createNote' && <CreateNote  />}
+        {page === 'myNotes' && <MyNote  />}
+        {page === 'publicNotes' && <PublicNotes  />}
+        {page === 'myHistory' && <MyHistory  />}
       </main>
     </div>
   );

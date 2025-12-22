@@ -1,81 +1,66 @@
-import NoteVote from '#models/note_vote'
-import Note from '#models/note'
-import User from '#models/user'
-import db from '@adonisjs/lucid/services/db'
+// import NoteVote from '#models/note_vote'
+// import Note from '#models/note'
+// import User from '#models/user'
+// import db from '@adonisjs/lucid/services/db'
 
-export default class NoteVoteService {
-  public async record(note: Note, user: User, voteValue: 1 | -1) {
-    return db.transaction(async (trx) => {
-      // find existing vote
-      const existingVote = await NoteVote.query({ client: trx })
-        .where('note_id', note.id)
-        .andWhere('voter_user_id', user.id)
-        .first()
+// type VotePayload = {
+//   note_id: number
+//   vote_value: 1 | -1
+// }
 
-      if (existingVote) {
-        if (existingVote.vote_value === voteValue) {
-          const current = await Note.query({ client: trx }).where('id', note.id).first()
-          if (!current) return { message: 'Note not found' }
+// export default class NoteVoteService {
+//   public async castVote(payload: VotePayload, user: User) {
+//     const trx = await db.transaction()
+//     try {
+//       const { note_id, vote_value } = payload
 
-          return {
-            message: 'Vote already applied',
-            upvotes: current.upvotes,
-            downvotes: current.downvotes,
-          }
-        }
+//       // Find the note
+//       const note = await Note.query({ client: trx }).where('id', note_id).first()
+//       if (!note) throw new Error('Note does not exist')
 
-        // remove old vote
-        if (existingVote.vote_value === 1) {
-          await Note.query({ client: trx }).where('id', note.id).decrement('upvotes', 1)
-        } else {
-          await Note.query({ client: trx }).where('id', note.id).decrement('downvotes', 1)
-        }
+//       // Check if user already voted
+//       let noteVote = await NoteVote.query({ client: trx })
+//         .where('note_id', note_id)
+//         .where('voter_user_id', user.id)
+//         .first()
 
-        // apply new vote
-        if (voteValue === 1) {
-          await Note.query({ client: trx }).where('id', note.id).increment('upvotes', 1)
-        } else {
-          await Note.query({ client: trx }).where('id', note.id).increment('downvotes', 1)
-        }
+//       if (noteVote) {
+//         if (noteVote.vote_value !== vote_value) {
+//           noteVote.vote_value = vote_value
+//           await noteVote.useTransaction(trx).save()
+//         } else {
+//           throw new Error('You already voted the same')
+//         }
+//       } else {
+//         noteVote = new NoteVote()
+//         noteVote.useTransaction(trx)
+//         noteVote.note_id = note_id
+//         noteVote.voter_user_id = user.id
+//         noteVote.vote_value = vote_value
+//         await noteVote.save()
+//       }
 
-        existingVote.vote_value = voteValue
-        existingVote.useTransaction(trx)
-        await existingVote.save()
+//       // ===== Optimized Note vote count update =====
+//       const counts = await NoteVote.query({ client: trx })
+//         .where('note_id', note_id)
+//         .select(db.raw('SUM(CASE WHEN vote_value=1 THEN 1 ELSE 0 END) as upvotes'))
+//         .select(db.raw('SUM(CASE WHEN vote_value=-1 THEN 1 ELSE 0 END) as downvotes'))
+//         .firstOrFail()
 
-        const updated = await Note.query({ client: trx }).where('id', note.id).first()
-        if (!updated) return { message: 'Note not found' }
+//       note.upvotes = Number(counts.upvotes)
+//       note.downvotes = Number(counts.downvotes)
+//       note.totalvotes = note.upvotes - note.downvotes
+//       await note.useTransaction(trx).save()
 
-        return {
-          message: 'Vote updated',
-          upvotes: updated.upvotes,
-          downvotes: updated.downvotes,
-        }
-      }
-
-      // 🆕 First-time vote
-      await NoteVote.create(
-        {
-          note_id: note.id,
-          voter_user_id: user.id,
-          vote_value: voteValue,
-        },
-        { client: trx }
-      )
-
-      if (voteValue === 1) {
-        await Note.query({ client: trx }).where('id', note.id).increment('upvotes', 1)
-      } else {
-        await Note.query({ client: trx }).where('id', note.id).increment('downvotes', 1)
-      }
-
-      const updated = await Note.query({ client: trx }).where('id', note.id).first()
-      if (!updated) return { message: 'Note not found' }
-
-      return {
-        message: 'Vote recorded',
-        upvotes: updated.upvotes,
-        downvotes: updated.downvotes,
-      }
-    })
-  }
-}
+//       await trx.commit()
+//       return {
+//         message: 'Vote processed successfully',
+//         note,
+//         vote: noteVote,
+//       }
+//     } catch (error) {
+//       await trx.rollback()
+//       throw new Error(`Failed to cast vote: ${error.message}`)
+//     }
+//   }
+// }

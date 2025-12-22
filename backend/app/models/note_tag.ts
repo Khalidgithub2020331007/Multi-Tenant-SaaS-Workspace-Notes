@@ -13,9 +13,9 @@ export default class NoteTag extends BaseModel {
   @column()
   declare tag_id: number
 
-  @belongsTo(() => Note, { foreignKey: 'note_id' })
+  @belongsTo(() => Note)
   declare note: BelongsTo<typeof Note>
-  @belongsTo(() => Tag, { foreignKey: 'tag_id' }) // foreignKey is the column name in the Tag table
+  @belongsTo(() => Tag)
   declare tag: BelongsTo<typeof Tag>
 
   @column.dateTime({ autoCreate: true })

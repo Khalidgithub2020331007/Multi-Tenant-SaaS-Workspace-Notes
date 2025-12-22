@@ -2,7 +2,7 @@ import { useState } from 'react'
 import api from '../../../../api/axios' // নিশ্চিত হও Axios ঠিক import হয়েছে
 
 const CreateTagForm = () => {
-  // ✅ Get logged-in user from localStorage
+  //  Get logged-in user from localStorage
   const userStr = localStorage.getItem('loggedInUser')
   const user = userStr ? JSON.parse(userStr) : null
 
@@ -54,7 +54,7 @@ const CreateTagForm = () => {
         {error && <p className="text-red-600 text-sm">{error}</p>}
         {success && <p className="text-green-600 text-sm">{success}</p>}
 
-        {/* ✅ Submit Button */}
+        {/*  Submit Button */}
         <button
           type="submit"
           disabled={loading}

@@ -15,27 +15,28 @@ const ShowHistory = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const fetchHistory = async () => {
-    try {
-      console.log('📡 Fetching author note history...')
-      const res = await api.get('/note_history/author')
-      console.log('✅ API Response:', res.data)
 
-      const fixedHistories = res.data.histories.map((h: any) => ({
+
+  useEffect(() => {
+      const fetchHistory = async () => {
+    try {
+      // console.log('📡 Fetching author note history...')
+      const res = await api.get('/note_history/author')
+      // console.log(' API Response:', res.data)
+
+      const fixedHistories = res.data.histories.map((h: History) => ({
         ...h,
         createdAt: h.createdAt,
       }))
 
       setHistories(fixedHistories)
-    } catch (err: any) {
+    } catch (err:unknown) {
       console.error('❌ Fetch Error:', err)
-      setError(err.response?.data?.message || 'Failed to fetch note history')
+      setError( 'Failed to fetch note history')
     } finally {
       setLoading(false)
     }
   }
-
-  useEffect(() => {
     fetchHistory()
   }, [])
 
