@@ -15,15 +15,17 @@ export const noteValidator = vine.compile(
     note_type: vine.enum(['draft', 'public', 'private'] as const),
   })
 )
-
 export const noteCreateValidator = vine.compile(
   vine.object({
-    title: vine.string(),
+    title: vine
+      .string()
+      .minLength(3)
+      .regex(/^[a-zA-Z0-9\s]+$/),
     content: vine.string(),
     workspace_id: vine.number(), // ensure not empty
     note_type: vine.enum(['draft', 'public', 'private'] as const),
     company_hostname: vine.string().minLength(1),
-    // tags: vine.array(vine.string()), // add this if frontend sends tags
+    tags: vine.array(vine.number()),
   })
 )
 

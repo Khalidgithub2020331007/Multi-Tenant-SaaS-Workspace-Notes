@@ -1,6 +1,7 @@
 // note service
 
 import Note from '#models/note'
+import NoteTag from '#models/note_tag'
 import User from '#models/user'
 import Workspace from '#models/workspace'
 import NoteHistoryService from '../note_history/note_history.service.js'
@@ -20,6 +21,7 @@ type NoteCreatePayload = {
   company_hostname: string
   note_type: 'draft' | 'public' | 'private'
   created_at?: string
+  tags?: number[]
 }
 
 export default class NoteService {
@@ -51,6 +53,11 @@ export default class NoteService {
       note.note_type = payload.note_type
       note.company_hostname = user.company_hostname
       await note.save()
+
+      if (payload.tags) {
+        const tagIds = Array.isArray(payload.tags) ? payload.tags : [payload.tags]
+        await note.related('tags').attach(tagIds)
+      }
 
       await this.historyService.record(note, user, 'created', trx)
       await trx.commit()

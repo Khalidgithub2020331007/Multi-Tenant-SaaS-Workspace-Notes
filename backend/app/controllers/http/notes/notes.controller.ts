@@ -3,6 +3,7 @@
 import { HttpContext } from '@adonisjs/core/http'
 import NoteService from './notes.service.js'
 import { noteCreateValidator, noteValidator } from './notes.validator.js'
+import vine from '@vinejs/vine'
 
 export default class NoteController {
   private service: NoteService

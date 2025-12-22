@@ -55,7 +55,7 @@ export default class TagsService {
   public async get_all_tags(user: User) {
     try {
       const tags = await Tag.query()
-        .select('tag_name')
+        .select('*')
         .where('company_hostname', user.company_hostname)
         .orderBy('created_at', 'desc')
       console.log('Tags fetched:', tags)
