@@ -36,7 +36,7 @@ export default class Note extends BaseModel {
   @belongsTo(() => User)
   declare authorUser: BelongsTo<typeof User>
 
-  @belongsTo(() => Workspace)
+  @belongsTo(() => Workspace, { foreignKey: 'workspace_id' })
   declare workspace: BelongsTo<typeof Workspace>
   @manyToMany(() => Tag, {
     pivotTable: 'note_tags',

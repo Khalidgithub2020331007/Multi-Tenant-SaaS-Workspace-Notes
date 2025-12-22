@@ -11,6 +11,7 @@ type NotePayload = {
   content: string
 
   note_type: 'draft' | 'public' | 'private'
+  created_at?: string
 }
 type NoteCreatePayload = {
   title: string
@@ -18,6 +19,7 @@ type NoteCreatePayload = {
   workspace_id: number
   company_hostname: string
   note_type: 'draft' | 'public' | 'private'
+  created_at?: string
 }
 
 export default class NoteService {
@@ -135,20 +137,35 @@ export default class NoteService {
   }
   public async public_shownotes(user: User) {
     try {
-      const note = await Note.query()
+      const notes = await Note.query()
         .where('company_hostname', user.company_hostname)
         .where('note_type', 'public')
+        .preload('workspace', (q) => {
+          q.select('id', 'workspace_name')
+        })
+      console.log('Fetched public notes:', notes)
 
-      if (!note) {
+      if (notes.length === 0) {
         throw new Error('Note does not exist')
       }
-      if (note[0].company_hostname !== user.company_hostname) {
+      if (notes[0].company_hostname !== user.company_hostname) {
         throw new Error('Only the company member can see public note')
       }
 
       return {
         message: 'Note found successfully',
-        note,
+        note: notes.map((note) => ({
+          id: note.id,
+          title: note.title,
+          content: note.content,
+          noteType: note.note_type,
+          createdAt: note.createdAt,
+          workspaceName: note.workspace.workspace_name,
+          upvotes: note.upvotes,
+          downvotes: note.downvotes,
+          totalvotes: note.upvotes - note.downvotes,
+          authorUserId: note.author_user_id,
+        })),
       }
     } catch (error) {
       throw new Error(`Failed to find note: ${error.message}`)
