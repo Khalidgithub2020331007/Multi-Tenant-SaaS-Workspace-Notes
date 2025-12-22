@@ -7,6 +7,8 @@ type Note = {
   content: string
   noteType: 'draft' | 'public' | 'private'
   createdAt: string
+  workspaceName: string 
+  tag: string[]
 }
 
 const MyNote = () => {
@@ -31,6 +33,8 @@ const MyNote = () => {
         content: note.content,
         noteType: note.noteType, // camelCase → snake_case
         createdAt: note.createdAt,
+        workspaceName: note.workspaceName,
+        tag: note.tag,
       }))
 
       setNotes(fixedNotes)
@@ -84,6 +88,8 @@ const MyNote = () => {
             <th className="border px-4 py-2">Title</th>
             <th className="border px-4 py-2">Content</th>
             <th className="border px-4 py-2">Type</th>
+            <th className="border px-4 py-2">Tags</th>
+            <th className="border px-4 py-2">Workspace</th>
             <th className="border px-4 py-2">Created At</th>
             <th className="border px-4 py-2">Actions</th>
           </tr>
@@ -169,7 +175,18 @@ const MyNote = () => {
                     note.noteType
                   )}
                 </td>
-
+                <td className="border px-4 py-2">
+                  {note.tag.map((tagName) => (
+                    <span
+                      key={tagName}
+                      className="px-2 py-1 rounded bg-gray-200 text-gray-800 mr-1"
+                    >
+                      {tagName}
+                    </span>
+                  ))}
+                </td>
+                <td className="border px-4 py-2">{note.workspaceName}</td>
+                
                 {/* CREATED AT */}
                 <td className="border px-4 py-2">
                   {new Date(note.createdAt).toLocaleString('en-US', {

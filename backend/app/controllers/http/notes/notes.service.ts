@@ -196,11 +196,25 @@ export default class NoteService {
     const notes = await Note.query()
       .where('company_hostname', user.company_hostname)
       .where('author_user_id', user.id)
+      .preload('workspace', (q) => {
+        q.select('id', 'workspace_name')
+      })
+      .preload('tags', (q) => {
+        q.select('id', 'tag_name')
+      })
       .orderBy('created_at', 'desc')
 
     return {
       message: 'Author notes fetched successfully',
-      notes,
+      notes: notes.map((note) => ({
+        id: note.id,
+        title: note.title,
+        content: note.content,
+        noteType: note.note_type,
+        createdAt: note.createdAt,
+        workspaceName: note.workspace.workspace_name,
+        tag: note.tags.map((tag) => tag.tag_name),
+      })),
     }
   }
 }
