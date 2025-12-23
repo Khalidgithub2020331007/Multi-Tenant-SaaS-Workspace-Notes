@@ -5,7 +5,10 @@ type Workspace = {
   id: number
   workspaceName: string
 }
-type Tag = { tagName: string }
+type Tag = {
+  id:number
+  tagName: string
+}
 
 const CreateNote = () => {
   const userStr = localStorage.getItem('loggedInUser')
@@ -14,7 +17,7 @@ const CreateNote = () => {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [selectedWorkspace, setSelectedWorkspace] = useState<number | null>(null)
   const [tags, setTags] = useState<Tag[]>([])
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [selectedTags, setSelectedTags] = useState<number[]>([])
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [noteType, setNoteType] = useState<'draft' | 'public' | 'private'>('draft')
@@ -32,8 +35,8 @@ const CreateNote = () => {
     const fetchData = async () => {
       try {
         const [wsRes, tagRes] = await Promise.all([
-          api.get('/workspace/all', ),
-          api.get('/tag/all', ),
+          api.get('/workspace/all',),
+          api.get('/tag/all',),
         ])
         // console.log('Fetched workspaces:', wsRes.data.workspaces)
         // console.log('Fetched tags:', tagRes.data.tags)
@@ -54,11 +57,7 @@ const CreateNote = () => {
     fetchData()
   }, []) //  empty dependency array: run only once
 
-  const handleTagSelect = (tagName: string) => {
-    setSelectedTags(prev =>
-      prev.includes(tagName) ? prev.filter(t => t !== tagName) : [...prev, tagName]
-    )
-  }
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -71,11 +70,11 @@ const CreateNote = () => {
     // console.log('Content:', content)
     // console.log('Note Type:', noteType)
 
-    if (selectedWorkspace===null) return setError('Please select a workspace')
+    if (selectedWorkspace === null) return setError('Please select a workspace')
     if (!title.trim() || !content.trim()) return setError('Title and content are required')
 
     try {
-      console.log('selectedWorkspace',selectedWorkspace)
+      console.log('selectedWorkspace', selectedWorkspace)
       const payload = {
         title,
         content,
@@ -84,7 +83,7 @@ const CreateNote = () => {
         tags: selectedTags,
         company_hostname: user.company_hostname,
       }
-      console.log('payload',payload)
+      console.log('payload', payload)
 
       // console.log('Sending payload to backend:', payload)
 
@@ -103,6 +102,13 @@ const CreateNote = () => {
      
     }
   }
+  const handleTagSelect = (tagId: number) => {
+  setSelectedTags(prev =>
+    prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]
+  )
+}
+
+
 
   if (!user) return <p className="text-red-600">User not logged in</p>
 
@@ -119,7 +125,7 @@ const CreateNote = () => {
             <label className="block mb-1 font-medium">Workspace</label>
             <select
               className="w-full border rounded px-3 py-2"
-              value={selectedWorkspace??''}
+              value={selectedWorkspace ?? ''}
               onChange={(e) =>
                 setSelectedWorkspace(Number(e.target.value))
                 // console.log('Selected workspace changed to:', e.target.value)
@@ -139,19 +145,20 @@ const CreateNote = () => {
             <div className="flex flex-wrap gap-2 border rounded p-2">
               {tags.map(tag => (
                 <span
-                  key={tag.tagName}
+                  key={tag.id}
                   className={`px-2 py-1 rounded cursor-pointer ${
-                    selectedTags.includes(tag.tagName)
+                    selectedTags.includes(tag.id)
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-200 text-gray-800'
                   }`}
-                  onClick={() => handleTagSelect(tag.tagName)}
+                  onClick={() => handleTagSelect(tag.id)}
                 >
                   {tag.tagName}
                 </span>
               ))}
             </div>
           </div>
+            
 
           <div>
             <label className="block mb-1 font-medium">Title</label>
@@ -196,6 +203,6 @@ const CreateNote = () => {
       )}
     </div>
   )
-}
 
+}
 export default CreateNote

@@ -26,6 +26,7 @@ const CreateTag = () => {
       try {
         const res = await api.get('/tag/all')
         setTags(res.data.tags || [])
+        console.log('Fetched tags:', res.data.tags)
       } catch (err: unknown) {
         if (err instanceof Error) setError(err.message)
         else setError('Failed to fetch tags')

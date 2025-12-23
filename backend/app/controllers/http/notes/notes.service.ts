@@ -6,6 +6,7 @@ import User from '#models/user'
 import Workspace from '#models/workspace'
 import NoteHistoryService from '../note_history/note_history.service.js'
 import db from '@adonisjs/lucid/services/db'
+import NoteVote from '#models/note_vote'
 
 type NotePayload = {
   title: string
@@ -44,6 +45,7 @@ export default class NoteService {
       }
 
       // Create a new note
+      
       const note = new Note()
       note.useTransaction(trx)
       note.title = payload.title
@@ -217,4 +219,68 @@ export default class NoteService {
       })),
     }
   }
+  public async voteNote(
+    noteId: number,
+    voteType: 'upvote' | 'downvote',
+    user: User
+  ) {
+    const trx = await db.transaction()
+    try {
+      const note = await Note.query({ client: trx }).where('id', noteId).first()
+      if (!note) {
+        throw new Error('Note does not exist')
+      }
+      if (note.company_hostname !== user.company_hostname) {
+        throw new Error('Only company members can vote on notes')
+      }
+      note.useTransaction(trx)
+      const existingVote = await NoteVote.query({ client: trx })
+        .where('note_id', noteId)
+        .andWhere('voter_user_id', user.id)
+        .first()
+      const newVoteValue = voteType === 'upvote' ? 1 : -1
+
+      if (!existingVote) {
+        // Create new vote
+        await NoteVote.create({
+          note_id: noteId,
+          voter_user_id: user.id,
+          vote_value: newVoteValue,
+        }, { client: trx })
+        if (newVoteValue === 1) {
+          note.upvotes += 1
+        } else {
+          note.downvotes += 1
+        }
+        await note.save()
+        
+        await trx.commit()
+        return { message: 'Vote recorded successfully', note }
+      } else {
+        // Update existing vote
+        if (existingVote.vote_value === newVoteValue) {
+          await trx.commit()
+          return { message: 'Vote unchanged', note }
+        }
+        if (existingVote.vote_value === 1 && newVoteValue === -1) {
+          note.upvotes -= 1
+          note.downvotes += 1
+        }
+        if (existingVote.vote_value === -1 && newVoteValue === 1) {
+          note.downvotes -= 1
+          note.upvotes += 1
+        }
+        existingVote.vote_value = newVoteValue
+        await existingVote.save()
+        await note.save()
+
+        await trx.commit()
+        return { message: 'Vote updated successfully', note }
+
+      }
+    } catch (error) {
+      await trx.rollback()
+      throw new Error(`Failed to vote on note: ${error.message}`)
+    }
+  }   
 }

@@ -156,4 +156,38 @@ export default class NoteController {
       })
     }
   }
+  public async vote_note({ request, response, auth }: HttpContext) {
+    try {
+      const user = auth.user
+
+      if (!user) {
+        throw new Error('User not authenticated')
+      }
+      const noteId = Number(request.params().id)
+      const newVoteValue = request.input('vote_value')
+      console.log('🟡 Voting on note:', { noteId, newVoteValue }) 
+      if(![1, -1].includes(newVoteValue)) {
+        throw new Error('Invalid vote value')
+      }
+      const result= await this.service.voteNote(
+        noteId,
+        newVoteValue === 1 ? 'upvote' : 'downvote',
+        user
+      )
+
+      return response.ok({
+        message: 'Note voted successfully',
+        note:{
+          id:result.note.id,
+          upvotes:result.note.upvotes,
+          downvotes:result.note.downvotes
+        }
+      })
+    } catch (error) {
+      return response.badRequest({
+        message: 'Note voting failed',
+        errors: error.messages || error.message,
+      })
+    }   
+  }
 }
