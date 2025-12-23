@@ -59,7 +59,7 @@ const PublicNotes = () => {
         {notes.map((note) => (
           <div
             key={note.id}
-            className="border rounded-lg p-5 shadow-sm bg-white cursor-pointer hover:bg-gray-50"
+            className="border rounded-lg p-5 shadow-sm bg-white  hover:bg-gray-50"
             onClick={() => console.log('Clicked Note:', note)} // <-- এখানে
 
           >
@@ -68,8 +68,8 @@ const PublicNotes = () => {
             </p>
             <h2 className="text-xl font-bold text-gray-800 mt-1">Title: {note.title}</h2>
             <p className="text-gray-700 mt-2 whitespace-pre-line">Content: {note.content}</p>
-            <p>👍:{note.upvotes}</p>
-            <p>👎:{note.downvotes}</p> 
+            <p className='cursor-pointer'>👍:{note.upvotes}</p>
+            <p className='cursor-pointer'>👎:{note.downvotes}</p> 
 
 
             <p className="text-xs text-gray-400 pt-3">
