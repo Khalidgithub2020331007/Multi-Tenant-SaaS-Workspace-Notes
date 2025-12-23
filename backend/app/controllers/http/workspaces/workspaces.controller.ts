@@ -2,6 +2,7 @@ import { HttpContext } from '@adonisjs/core/http'
 import WorkspaceService from './workspaces.service.js'
 import { WorkspaceValidator } from './workspaces.validator.js'
 import { workspaceDeleteValidator } from './workspaces.validator.js'
+import { request } from 'http'
 
 export default class WorkspaceController {
   private service: WorkspaceService
@@ -69,15 +70,18 @@ export default class WorkspaceController {
     }
   }
   //  workspace get_all_workspaces controller
-  public async get_all_workspaces({ response, auth }: HttpContext) {
+  public async get_all_workspaces({ request, response, auth }: HttpContext) {
     try {
       const user = auth.user
       if (!user) {
         throw new Error('User not authenticated')
-      }
-      const result = await this.service.get_all_workspaces(user)
 
-      return response.created({
+      }
+      const page= Number(request.input('page',1))
+      const limit= Math.min(Number(request.input('limit',20)),20)
+      const result = await this.service.get_all_workspaces(user, page, limit)
+
+      return response.ok({
         message: result.message,
         workspaces: result.workspaces,
       })

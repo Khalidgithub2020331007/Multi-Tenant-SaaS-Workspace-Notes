@@ -13,6 +13,7 @@ router
     router.get('/show_notes', [NoteController, 'public_shownotes'])
     router.get('/private_shownotes', [NoteController, 'private_shownotes'])
     router.get('/author_notes', [NoteController, 'author_notes'])
+    router.post('/:id/vote/', [NoteController, 'vote_note'])
   })
   .prefix('/note')
   .use([middleware.auth()])

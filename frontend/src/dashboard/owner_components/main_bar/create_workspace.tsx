@@ -1,18 +1,5 @@
-// import CreateWorkspaceForm from './workspace/Form_Work_Space'
-// import Fetch_Work_Space from './workspace/Fetch_Work_Space'
-// const CreateWorkSpace = () => {
-//   return (
-//     <div>
-//           <CreateWorkspaceForm></CreateWorkspaceForm>
-//           <Fetch_Work_Space></Fetch_Work_Space>
-//     </div>
-//   );
-// };
 
-// export default CreateWorkSpace;
-
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../../../api/axios';
 import { createWorkspace } from '../../../api/workspace';
 
@@ -23,6 +10,8 @@ type Workspace = {
 const CreateWorkSpace = () => {
   const userStr = localStorage.getItem('loggedInUser');
   const user = userStr ? JSON.parse(userStr) : null;
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [workspaceName, setWorkspaceName] = useState('');
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
@@ -34,22 +23,18 @@ const CreateWorkSpace = () => {
   if (!user) return <p className="text-red-600">User not logged in</p>;
 
   // Fetch workspaces initially
-  if (!fetching) {
+  useEffect(() => {
     setFetching(true);
     api
-      .get('/workspace/all')
+      .get(`/workspace/all?page=${page}&limit=6`)
       .then((res) => {
-        if (res.data.workspaces) {
-          setWorkspaces(res.data.workspaces);
-        } else {
-          setError('No workspaces found');
-        }
+        setWorkspaces(res.data.workspaces.data);
+        setTotalPages(res.data.workspaces.meta.lastPage);
       })
-      .catch((err: unknown) => {
-        if (err instanceof Error) setError(err.message);
-        else setError('Network error or server is down');
-      });
-  }
+      .catch(() => setError('Failed to fetch workspaces'))
+      .finally(() => setFetching(false));
+  }, [page]);
+
 
   // Handle creating new workspace
   const handleCreate = async (e: React.FormEvent) => {
@@ -163,6 +148,31 @@ const CreateWorkSpace = () => {
             </div>
           ))}
         </div>
+              {/* ===== Pagination ===== */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          >
+            Prev
+          </button>
+
+          <span className="font-semibold">
+            Page {page} / {totalPages}
+          </span>
+
+          <button
+            disabled={page === totalPages}
+            onClick={() => setPage(page + 1)}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
+
       </div>
     </div>
   );
