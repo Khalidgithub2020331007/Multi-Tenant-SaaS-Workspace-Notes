@@ -96,3 +96,5 @@ export default class FullSeeder extends BaseSeeder {
     }
   }
 }
+
+//  NODE_OPTIONS="--max-old-space-size=8192" node ace db:seed --files database/seeders/full_seed.ts

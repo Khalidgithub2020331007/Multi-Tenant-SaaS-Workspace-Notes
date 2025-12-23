@@ -3,7 +3,6 @@
 import { HttpContext } from '@adonisjs/core/http'
 import NoteService from './notes.service.js'
 import { noteCreateValidator, noteValidator } from './notes.validator.js'
-import vine from '@vinejs/vine'
 
 export default class NoteController {
   private service: NoteService
@@ -99,17 +98,21 @@ export default class NoteController {
       })
     }
   }
-  public async public_shownotes({ response, auth }: HttpContext) {
+  public async public_shownotes({ response, auth, request }: HttpContext) {
     try {
       const user = auth.user
       if (!user) {
         throw new Error('User not authenticated')
       }
-      const result = await this.service.public_shownotes(user)
+      const page = Number(request.input('page', 1))
+      let limit = Math.min(Number(request.input('limit', 20)), 20)
+      limit = Math.min(limit, 20)
+      const result = await this.service.public_shownotes(user, page, limit)
 
       return response.ok({
         message: result.message,
-        note: result.note,
+        note: result.notes,
+        meta: result.meta,
       })
     } catch (error) {
       return response.badRequest({
@@ -165,11 +168,11 @@ export default class NoteController {
       }
       const noteId = Number(request.params().id)
       const newVoteValue = request.input('vote_value')
-      console.log('🟡 Voting on note:', { noteId, newVoteValue }) 
-      if(![1, -1].includes(newVoteValue)) {
+      console.log('🟡 Voting on note:', { noteId, newVoteValue })
+      if (![1, -1].includes(newVoteValue)) {
         throw new Error('Invalid vote value')
       }
-      const result= await this.service.voteNote(
+      const result = await this.service.voteNote(
         noteId,
         newVoteValue === 1 ? 'upvote' : 'downvote',
         user
@@ -177,17 +180,17 @@ export default class NoteController {
 
       return response.ok({
         message: 'Note voted successfully',
-        note:{
-          id:result.note.id,
-          upvotes:result.note.upvotes,
-          downvotes:result.note.downvotes
-        }
+        note: {
+          id: result.note.id,
+          upvotes: result.note.upvotes,
+          downvotes: result.note.downvotes,
+        },
       })
     } catch (error) {
       return response.badRequest({
         message: 'Note voting failed',
         errors: error.messages || error.message,
       })
-    }   
+    }
   }
 }

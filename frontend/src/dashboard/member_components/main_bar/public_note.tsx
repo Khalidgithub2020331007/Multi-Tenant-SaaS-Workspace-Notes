@@ -18,13 +18,15 @@ const PublicNotes = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedNote, setSelectedNote] = useState<Note | null>(null)
+  const [limit, setLimit] = useState(5);
+  const [page, setPage] = useState(1);
 
   // 🔹 fetch public notes
   useEffect(() => {
     const fetchPublicNotes = async () => {
       try {
         console.log('🟡 Fetching public notes...')
-        const res = await api.get('/note/show_notes')
+        const res = await api.get(`/note/show_notes?page=${page}&limit=${limit}`)
 
         console.log('🟢 Public notes API response:', res.data)
 
@@ -37,7 +39,7 @@ const PublicNotes = () => {
       }
     }
     fetchPublicNotes()
-  }, [])
+  }, [page])
 
   // 🔹 vote handler
   const handleVote = async (
@@ -92,6 +94,13 @@ const PublicNotes = () => {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">📢 Public Notes</h1>
+      {/* ===== Pagination ===== */}
+        <select value={limit} onChange={(e) => { setLimit(Number(e.target.value)); setPage(1) }}>
+          <option value={5}>5</option>
+          <option value={10}>10</option>
+          <option value={15}>15</option>
+          <option value={20}>20</option>
+        </select>
 
       <div className="space-y-4">
         {notes.map((note) => (

@@ -7,6 +7,7 @@ import Workspace from '#models/workspace'
 import NoteHistoryService from '../note_history/note_history.service.js'
 import db from '@adonisjs/lucid/services/db'
 import NoteVote from '#models/note_vote'
+import { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
 
 type NotePayload = {
   title: string
@@ -45,7 +46,7 @@ export default class NoteService {
       }
 
       // Create a new note
-      
+
       const note = new Note()
       note.useTransaction(trx)
       note.title = payload.title
@@ -144,37 +145,39 @@ export default class NoteService {
       throw new Error(`Failed to find note: ${error.message}`)
     }
   }
-  public async public_shownotes(user: User) {
+  public async public_shownotes(user: User, page: number = 1, limit: number = 20) {
     try {
+      limit = Math.min(limit || 20, 20)
       const notes = await Note.query()
         .where('company_hostname', user.company_hostname)
         .where('note_type', 'public')
         .preload('workspace', (q) => {
           q.select('id', 'workspace_name')
         })
+        .paginate(page, limit)
       console.log('Fetched public notes:', notes)
 
-      if (notes.length === 0) {
+      if (!notes.all().length) {
         throw new Error('Note does not exist')
       }
-      if (notes[0].company_hostname !== user.company_hostname) {
-        throw new Error('Only the company member can see public note')
-      }
+
+      const mappedNotes = notes.all().map((note) => ({
+        id: note.id,
+        title: note.title,
+        content: note.content,
+        noteType: note.note_type,
+        createdAt: note.createdAt,
+        workspaceName: note.workspace.workspace_name,
+        upvotes: note.upvotes,
+        downvotes: note.downvotes,
+        totalvotes: note.upvotes - note.downvotes,
+        authorUserId: note.author_user_id,
+      }))
 
       return {
-        message: 'Note found successfully',
-        note: notes.map((note) => ({
-          id: note.id,
-          title: note.title,
-          content: note.content,
-          noteType: note.note_type,
-          createdAt: note.createdAt,
-          workspaceName: note.workspace.workspace_name,
-          upvotes: note.upvotes,
-          downvotes: note.downvotes,
-          totalvotes: note.upvotes - note.downvotes,
-          authorUserId: note.author_user_id,
-        })),
+        message: 'Public notes fetched successfully',
+        notes: mappedNotes,
+        meta: notes.getMeta(),
       }
     } catch (error) {
       throw new Error(`Failed to find note: ${error.message}`)
@@ -219,11 +222,7 @@ export default class NoteService {
       })),
     }
   }
-  public async voteNote(
-    noteId: number,
-    voteType: 'upvote' | 'downvote',
-    user: User
-  ) {
+  public async voteNote(noteId: number, voteType: 'upvote' | 'downvote', user: User) {
     const trx = await db.transaction()
     try {
       const note = await Note.query({ client: trx }).where('id', noteId).first()
@@ -242,18 +241,21 @@ export default class NoteService {
 
       if (!existingVote) {
         // Create new vote
-        await NoteVote.create({
-          note_id: noteId,
-          voter_user_id: user.id,
-          vote_value: newVoteValue,
-        }, { client: trx })
+        await NoteVote.create(
+          {
+            note_id: noteId,
+            voter_user_id: user.id,
+            vote_value: newVoteValue,
+          },
+          { client: trx }
+        )
         if (newVoteValue === 1) {
           note.upvotes += 1
         } else {
           note.downvotes += 1
         }
         await note.save()
-        
+
         await trx.commit()
         return { message: 'Vote recorded successfully', note }
       } else {
@@ -276,11 +278,10 @@ export default class NoteService {
 
         await trx.commit()
         return { message: 'Vote updated successfully', note }
-
       }
     } catch (error) {
       await trx.rollback()
       throw new Error(`Failed to vote on note: ${error.message}`)
     }
-  }   
+  }
 }
