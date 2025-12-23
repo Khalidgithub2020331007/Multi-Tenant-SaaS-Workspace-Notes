@@ -6,7 +6,7 @@ type Workspace = {
   workspaceName: string
 }
 type Tag = {
-  id:number
+  id: number
   tagName: string
 }
 
@@ -25,72 +25,79 @@ const CreateNote = () => {
   const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
-  //  useEffect only runs once after mount
   useEffect(() => {
     if (!user) {
+      console.log('No user found in localStorage')
       setLoading(false)
       return
     }
 
     const fetchData = async () => {
       try {
+        console.log('Fetching workspaces and tags from backend...')
         const [wsRes, tagRes] = await Promise.all([
-          api.get('/workspace/all',),
-          api.get('/tag/all',),
+          api.get('/workspace/all'),
+          api.get('/tag/all'),
         ])
-        // console.log('Fetched workspaces:', wsRes.data.workspaces)
-        // console.log('Fetched tags:', tagRes.data.tags)
-        setWorkspaces(wsRes.data.workspaces)
-        console.log('Fetched workspaces:', wsRes.data.workspaces)
-        // console.log('workspace',wsRes.data)
-        console.log('Fetched tags:', tagRes.data.tags)
-        if (wsRes.data.workspaces.length > 0) setSelectedWorkspace(wsRes.data.workspaces[0].id)
+
+        console.log('Workspaces response:', wsRes)
+        console.log('Tags response:', tagRes)
+
+        const wsArray = wsRes.data.workspaces.data || []
+        setWorkspaces(wsArray)
+        console.log('Workspaces array:', wsArray)
+              
+        if (wsArray.length > 0) setSelectedWorkspace(wsArray[0].id)
+        
         setTags(tagRes.data.tags || [])
+
+        if (wsRes.data.workspaces?.length > 0) {
+          setSelectedWorkspace(wsRes.data.workspaces[0].id)
+          console.log('Default selected workspace ID:', wsRes.data.workspaces[0].id)
+        }
+
       } catch (err: unknown) {
         console.error('Error fetching workspaces or tags:', err)
-        setError('Failed to fetch workspaces or tags')
+        setError('Failed to fetch workspaces or tags. Check console for details.')
       } finally {
         setLoading(false)
+        console.log('Finished fetching workspaces and tags.')
       }
     }
 
     fetchData()
-  }, []) //  empty dependency array: run only once
-
-
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setSuccess(null)
 
-    // console.log('Selected Workspace:', selectedWorkspace)
-    // console.log('Selected Tags:', selectedTags)
-    // console.log('Title:', title)
-    // console.log('Content:', content)
-    // console.log('Note Type:', noteType)
+    if (selectedWorkspace === null) {
+      console.warn('No workspace selected')
+      return setError('Please select a workspace')
+    }
+    if (!title.trim() || !content.trim()) {
+      console.warn('Title or content empty')
+      return setError('Title and content are required')
+    }
 
-    if (selectedWorkspace === null) return setError('Please select a workspace')
-    if (!title.trim() || !content.trim()) return setError('Title and content are required')
+    const payload = {
+      title,
+      content,
+      workspace_id: selectedWorkspace,
+      note_type: noteType,
+      tags: selectedTags,
+      company_hostname: user.company_hostname,
+    }
+
+    console.log('Submitting note payload:', payload)
 
     try {
-      console.log('selectedWorkspace', selectedWorkspace)
-      const payload = {
-        title,
-        content,
-        workspace_id: selectedWorkspace,
-        note_type: noteType,
-        tags: selectedTags,
-        company_hostname: user.company_hostname,
-      }
-      console.log('payload', payload)
+      const res = await api.post('/note/create', payload)
+      console.log('Response from backend:', res)
 
-      // console.log('Sending payload to backend:', payload)
-
-      const res = await api.post('/note/create', payload,)
-      // console.log('Response from backend:', res.data)
-
-      setSuccess(res.data.message)
+      setSuccess(res.data.message || 'Note created successfully')
       setTitle('')
       setContent('')
       setSelectedTags([])
@@ -98,17 +105,17 @@ const CreateNote = () => {
       setSelectedWorkspace(null)
     } catch (err: unknown) {
       console.error('Error creating note:', err)
-      setError('Failed to create note')
-     
+      if (err instanceof Error) console.log('Error message:', err.message)
+      setError('Failed to create note. Check console for details.')
     }
   }
+
   const handleTagSelect = (tagId: number) => {
-  setSelectedTags(prev =>
-    prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]
-  )
-}
-
-
+    setSelectedTags(prev =>
+      prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]
+    )
+    console.log('Selected tags updated:', selectedTags)
+  }
 
   if (!user) return <p className="text-red-600">User not logged in</p>
 
@@ -126,10 +133,11 @@ const CreateNote = () => {
             <select
               className="w-full border rounded px-3 py-2"
               value={selectedWorkspace ?? ''}
-              onChange={(e) =>
-                setSelectedWorkspace(Number(e.target.value))
-                // console.log('Selected workspace changed to:', e.target.value)
-              }
+              onChange={(e) => {
+                const val = Number(e.target.value)
+                console.log('Selected workspace changed to:', val)
+                setSelectedWorkspace(val)
+              }}
             >
               <option value="">Select Workspace</option>
               {workspaces.map(ws => (
@@ -158,7 +166,6 @@ const CreateNote = () => {
               ))}
             </div>
           </div>
-            
 
           <div>
             <label className="block mb-1 font-medium">Title</label>
@@ -166,7 +173,10 @@ const CreateNote = () => {
               type="text"
               className="w-full border rounded px-3 py-2"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value)
+                console.log('Title changed:', e.target.value)
+              }}
             />
           </div>
 
@@ -176,7 +186,10 @@ const CreateNote = () => {
               className="w-full border rounded px-3 py-2"
               rows={5}
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={(e) => {
+                setContent(e.target.value)
+                console.log('Content changed:', e.target.value)
+              }}
             />
           </div>
 
@@ -185,7 +198,10 @@ const CreateNote = () => {
             <select
               className="w-full border rounded px-3 py-2"
               value={noteType}
-              onChange={(e) => setNoteType(e.target.value as 'draft' | 'public' | 'private')}
+              onChange={(e) => {
+                setNoteType(e.target.value as 'draft' | 'public' | 'private')
+                console.log('Note type changed to:', e.target.value)
+              }}
             >
               <option value="draft">Draft</option>
               <option value="private">Private</option>
@@ -203,6 +219,6 @@ const CreateNote = () => {
       )}
     </div>
   )
-
 }
+
 export default CreateNote

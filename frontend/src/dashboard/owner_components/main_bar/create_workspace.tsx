@@ -33,7 +33,7 @@ const CreateWorkSpace = () => {
       })
       .catch(() => setError('Failed to fetch workspaces'))
       .finally(() => setFetching(false));
-  }, [page]);
+  }, [page,limit]);
 
 
   // Handle creating new workspace

@@ -197,10 +197,13 @@ export default class NoteService {
       notes,
     }
   }
-  public async get_author_notes(user: User) {
+  public async get_author_notes(user: User, page = 1, limit = 20) {
+    limit = Math.min(limit, 20)
+
     const notes = await Note.query()
       .where('company_hostname', user.company_hostname)
       .where('author_user_id', user.id)
+      .select(['id', 'title', 'content', 'note_type', 'created_at', 'workspace_id'])
       .preload('workspace', (q) => {
         q.select('id', 'workspace_name')
       })
@@ -208,20 +211,23 @@ export default class NoteService {
         q.select('id', 'tag_name')
       })
       .orderBy('created_at', 'desc')
+      .paginate(page, limit)
 
     return {
       message: 'Author notes fetched successfully',
-      notes: notes.map((note) => ({
+      meta: notes.getMeta(),
+      notes: notes.all().map((note) => ({
         id: note.id,
         title: note.title,
         content: note.content,
         noteType: note.note_type,
         createdAt: note.createdAt,
-        workspaceName: note.workspace.workspace_name,
-        tag: note.tags.map((tag) => tag.tag_name),
+        workspaceName: note.workspace?.workspace_name ?? null,
+        tag: note.tags?.map((t) => t.tag_name) ?? [],
       })),
     }
   }
+
   public async voteNote(noteId: number, voteType: 'upvote' | 'downvote', user: User) {
     const trx = await db.transaction()
     try {

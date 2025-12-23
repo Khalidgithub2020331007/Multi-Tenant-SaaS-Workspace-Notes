@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CreateNote from "./main_bar/create_note";
 import CreateWorkSpace from "./main_bar/create_workspace";
 import CreateTag from "./main_bar/create_tag";
@@ -10,7 +10,14 @@ import TopNavbar from "./topnavbar";
 type Page = 'createWorkspace' | 'createTag' | 'createNote' | 'myNotes' | 'publicNotes' | 'showHistory';
 
 const OwnerDashboard = ({ onLogout }: { onLogout: () => void }) => {
-  const [page, setPage] = useState<Page>('createWorkspace');
+  const [page, setPage] = useState<Page>(() => {
+    return (localStorage.getItem('ownerDashboardPage') as Page) || 'createWorkspace';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('ownerDashboardPage', page);
+  }, [page]);
+
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">

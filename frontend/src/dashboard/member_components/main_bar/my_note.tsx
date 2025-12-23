@@ -7,72 +7,53 @@ type Note = {
   content: string
   noteType: 'draft' | 'public' | 'private'
   createdAt: string
-  workspaceName: string 
+  workspaceName: string | null
   tag: string[]
+}
+
+type Meta = {
+  total: number
+  perPage: number
+  currentPage: number
+  lastPage: number
 }
 
 const MyNote = () => {
   const [notes, setNotes] = useState<Note[]>([])
+  const [meta, setMeta] = useState<Meta | null>(null)
+  const [page, setPage] = useState(1)
+  const [limit] = useState(10)
+
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [editingNoteId, setEditingNoteId] = useState<number | null>(null)
 
   // ================= FETCH NOTES =================
-
   useEffect(() => {
-      const fetchNotes = async () => {
-    try {
-      const res = await api.get('/note/author_notes')
-      console.log('API Response:', res.data)
-      // console.log('Fetched Notes:', res.data.notes)
+    const fetchNotes = async () => {
+      try {
+        setLoading(true)
+        setError('')
 
-      // backend -> frontend field mapping
-      const fixedNotes = res.data.notes.map((note: Note) => ({
-        id: note.id,
-        title: note.title,
-        content: note.content,
-        noteType: note.noteType, // camelCase → snake_case
-        createdAt: note.createdAt,
-        workspaceName: note.workspaceName,
-        tag: note.tag,
-      }))
+        const res = await api.get('/note/author_notes', {
+          params: { page, limit },
+        })
 
-      setNotes(fixedNotes)
-      setLoading(false)
-    } catch (err: unknown) {
-      console.error('Fetch Error:', err)
-      setError( 'Failed to fetch notes')
-      setLoading(false)
+        console.log('Notes response:', res.data)
+
+        setNotes(res.data.notes)
+        setMeta(res.data.meta)
+      } catch (err) {
+        console.error('Fetch error:', err)
+        setError('Failed to fetch notes')
+      } finally {
+        setLoading(false)
+      }
     }
-  }
 
     fetchNotes()
-  }, [])
+  }, [page, limit])
 
-  // ================= UPDATE NOTE =================
-  const handleUpdate = async (noteId: number) => {
-    const note = notes.find((n) => n.id === noteId)
-    if (!note) return
-
-    try {
-      // console.log('Updating Note Payload:', note)
-
-      const res = await api.patch(`/note/${noteId}`, {
-        title: note.title,
-        content: note.content,
-        noteType: note.noteType,
-      })
-
-      console.log('Update Response:', res.data)
-
-      setEditingNoteId(null)
-      alert('Note updated successfully')
-    } catch (err: unknown) {
-      console.error('Update Error:', err)
-      alert('Update failed')
-    }
-  }
-
+  // ================= UI STATES =================
   if (loading) return <p>Loading notes...</p>
   if (error) return <p className="text-red-500">{error}</p>
 
@@ -81,6 +62,7 @@ const MyNote = () => {
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">My Notes</h2>
 
+      {/* TABLE */}
       <table className="min-w-full border border-gray-300">
         <thead className="bg-gray-100">
           <tr>
@@ -90,137 +72,76 @@ const MyNote = () => {
             <th className="border px-4 py-2">Type</th>
             <th className="border px-4 py-2">Tags</th>
             <th className="border px-4 py-2">Workspace</th>
-            <th className="border px-4 py-2">Created At</th>
-            <th className="border px-4 py-2">Actions</th>
+            <th className="border px-4 py-2">Created</th>
           </tr>
         </thead>
 
         <tbody>
-          {notes.map((note) => {
-            const isEditing = editingNoteId === note.id
+          {notes.map((note) => (
+            <tr key={note.id}>
+              <td className="border px-4 py-2">{note.id}</td>
+              <td className="border px-4 py-2">{note.title}</td>
+              <td className="border px-4 py-2">{note.content}</td>
+              <td className="border px-4 py-2">{note.noteType}</td>
 
-            return (
-              <tr key={note.id}>
-                <td className="border px-4 py-2">{note.id}</td>
+              {/* TAGS */}
+              <td className="border px-4 py-2">
+                {note.tag.map((t) => (
+                  <span
+                    key={t}
+                    className="mr-1 px-2 py-1 bg-gray-200 rounded text-sm"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </td>
 
-                {/* TITLE */}
-                <td className="border px-4 py-2">
-                  {isEditing ? (
-                    <input
-                      className="border px-2 py-1 w-full"
-                      value={note.title}
-                      onChange={(e) =>
-                        setNotes((prev) =>
-                          prev.map((n) =>
-                            n.id === note.id
-                              ? { ...n, title: e.target.value }
-                              : n
-                          )
-                        )
-                      }
-                    />
-                  ) : (
-                    note.title
-                  )}
-                </td>
+              <td className="border px-4 py-2">
+                {note.workspaceName ?? '—'}
+              </td>
 
-                {/* CONTENT */}
-                <td className="border px-4 py-2">
-                  {isEditing ? (
-                    <textarea
-                      className="border px-2 py-1 w-full"
-                      value={note.content}
-                      onChange={(e) =>
-                        setNotes((prev) =>
-                          prev.map((n) =>
-                            n.id === note.id
-                              ? { ...n, content: e.target.value }
-                              : n
-                          )
-                        )
-                      }
-                    />
-                  ) : (
-                    note.content
-                  )}
-                </td>
-
-                {/* TYPE */}
-                <td className="border px-4 py-2">
-                  {isEditing ? (
-                    <select
-                      className="border px-2 py-1"
-                      value={note.noteType}
-                      onChange={(e) =>
-                        setNotes((prev) =>
-                          prev.map((n) =>
-                            n.id === note.id
-                              ? {
-                                  ...n,
-                                  noteType: e.target.value as
-                                    | 'draft'
-                                    | 'private'
-                                    | 'public',
-                                }
-                              : n
-                          )
-                        )
-                      }
-                    >
-                      <option value="draft">Draft</option>
-                      <option value="private">Private</option>
-                      <option value="public">Public</option>
-                    </select>
-                  ) : (
-                    note.noteType
-                  )}
-                </td>
-                <td className="border px-4 py-2">
-                  {note.tag.map((tagName) => (
-                    <span
-                      key={tagName}
-                      className="px-2 py-1 rounded bg-gray-200 text-gray-800 mr-1"
-                    >
-                      {tagName}
-                    </span>
-                  ))}
-                </td>
-                <td className="border px-4 py-2">{note.workspaceName}</td>
-                
-                {/* CREATED AT */}
-                <td className="border px-4 py-2">
-                  {new Date(note.createdAt).toLocaleString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </td>
-
-                {/* ACTION */}
-                <td className="border px-4 py-2">
-                  {isEditing ? (
-                    <button
-                      onClick={() => handleUpdate(note.id)}
-                      className="bg-green-500 text-white px-3 py-1 rounded"
-                    >
-                      Save
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => setEditingNoteId(note.id)}
-                      className="bg-blue-500 text-white px-3 py-1 rounded"
-                    >
-                      Update
-                    </button>
-                  )}
-                </td>
-              </tr>
-            )
-          })}
+              <td className="border px-4 py-2">
+                {new Date(note.createdAt).toLocaleString()}
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
+
+      {/* PAGINATION */}
+      {meta && (
+        <div className="flex items-center justify-between mt-4">
+          <p className="text-sm text-gray-600">
+            Page {meta.currentPage} of {meta.lastPage} — Total {meta.total}
+          </p>
+
+          <div className="space-x-2">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage((p) => p - 1)}
+              className={`px-3 py-1 rounded ${
+                page === 1
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-blue-500 text-white'
+              }`}
+            >
+              Previous
+            </button>
+
+            <button
+              disabled={page === meta.lastPage}
+              onClick={() => setPage((p) => p + 1)}
+              className={`px-3 py-1 rounded ${
+                page === meta.lastPage
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-blue-500 text-white'
+              }`}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
