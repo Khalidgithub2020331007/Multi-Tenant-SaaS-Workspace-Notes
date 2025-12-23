@@ -18,15 +18,15 @@ const CreateWorkSpace = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [fetching, setFetching] = useState(false);
+  const [, setFetching] = useState(false);
+  const [limit, setLimit] = useState(5);
 
-  if (!user) return <p className="text-red-600">User not logged in</p>;
 
   // Fetch workspaces initially
   useEffect(() => {
     setFetching(true);
     api
-      .get(`/workspace/all?page=${page}&limit=6`)
+      .get(`/workspace/all?page=${page}&limit=${limit}`)
       .then((res) => {
         setWorkspaces(res.data.workspaces.data);
         setTotalPages(res.data.workspaces.meta.lastPage);
@@ -81,6 +81,7 @@ const CreateWorkSpace = () => {
       else alert('Failed to delete workspace');
     }
   };
+   if (!user) return <p className="text-red-600">User not logged in</p>;
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-8">
@@ -148,7 +149,14 @@ const CreateWorkSpace = () => {
             </div>
           ))}
         </div>
-              {/* ===== Pagination ===== */}
+        {/* ===== Pagination ===== */}
+        <select value={limit} onChange={(e) => { setLimit(Number(e.target.value)); setPage(1) }}>
+          <option value={5}>5</option>
+          <option value={10}>10</option>
+          <option value={15}>15</option>
+          <option value={20}>20</option>
+        </select>
+
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-4 mt-8">
           <button

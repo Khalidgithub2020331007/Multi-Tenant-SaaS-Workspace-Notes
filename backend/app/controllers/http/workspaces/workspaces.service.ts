@@ -62,13 +62,13 @@ export default class WorkspaceService {
     }
   }
   //  workspace get_all_workspaces service
-  public async get_all_workspaces(user: User ,page?:number, limit?:number) {
+  public async get_all_workspaces(user: User, page?: number, limit?: number) {
     try {
       const workspaces = await Workspace.query()
         .select('*')
         .where('company_hostname', user.company_hostname)
         .orderBy('created_at', 'desc')
-        .paginate(page || 1,limit || 20)
+        .paginate(page || 1, limit || 20)
 
       return {
         message: 'Workspaces fetched successfully',
