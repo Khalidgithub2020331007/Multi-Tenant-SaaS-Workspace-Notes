@@ -29,10 +29,15 @@ export default class CompanyRegisterController {
         user: result.user,
       })
     } catch (error) {
-      // 4️⃣ Handle validation or other errors
-      return response.badRequest({
-        message: 'Registration failed',
-        errors: error.messages || error.message,
+      if (error.messages) {
+        return response.badRequest({
+          message: 'Validation failed',
+          // errors: error.messages,
+        })
+      }
+
+      return response.conflict({
+        message: 'Company already exists',
       })
     }
   }

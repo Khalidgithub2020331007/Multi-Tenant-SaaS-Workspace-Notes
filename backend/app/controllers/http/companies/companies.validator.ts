@@ -2,7 +2,10 @@ import vine, { SimpleMessagesProvider } from '@vinejs/vine'
 export const companyRegisterValidator = vine.compile(
   vine.object({
     company_name: vine.string().minLength(2),
-    hostname: vine.string().minLength(3),
+    hostname: vine
+      .string()
+      .minLength(3)
+      .regex(/^[a-z0-9.-]+$/),
     owner_name: vine.string().minLength(2),
     owner_email: vine.string().email(),
 

@@ -29,7 +29,7 @@ export default class TagController {
     } catch (error) {
       return response.badRequest({
         message: 'Tag creation failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }
@@ -49,7 +49,7 @@ export default class TagController {
     } catch (error) {
       return response.badRequest({
         message: 'Tag deletion failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }
@@ -68,7 +68,7 @@ export default class TagController {
     } catch (error) {
       return response.badRequest({
         message: 'Tags fetch failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }

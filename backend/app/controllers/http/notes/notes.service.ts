@@ -1,13 +1,11 @@
 // note service
 
 import Note from '#models/note'
-import NoteTag from '#models/note_tag'
 import User from '#models/user'
 import Workspace from '#models/workspace'
 import NoteHistoryService from '../note_history/note_history.service.js'
 import db from '@adonisjs/lucid/services/db'
 import NoteVote from '#models/note_vote'
-import { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
 
 type NotePayload = {
   title: string
@@ -129,14 +127,14 @@ export default class NoteService {
   public async searchNote(title: string, user: User) {
     try {
       const note = await Note.query()
-        .whereILike('title', title)
+        .where('title', 'like', `%${title}%`)
         .where('company_hostname', user.company_hostname)
       if (!note) {
         throw new Error('Note does not exist')
       }
-      if (note[0].company_hostname !== user.company_hostname) {
-        throw new Error('Only the company member can search')
-      }
+      // if (note[0].company_hostname !== user.company_hostname) {
+      //   throw new Error('Only the company member can search')
+      // }
       return {
         message: 'Note found successfully',
         note,
@@ -145,17 +143,41 @@ export default class NoteService {
       throw new Error(`Failed to find note: ${error.message}`)
     }
   }
-  public async public_shownotes(user: User, page: number = 1, limit: number = 20) {
+  public async public_shownotes(
+    user: User,
+    page: number = 1,
+    limit: number = 20,
+    search: string = '',
+    sort: 'new' | 'old' | 'upvotes' | 'downvotes' = 'new'
+  ) {
     try {
       limit = Math.min(limit || 20, 20)
-      const notes = await Note.query()
+      let query = Note.query()
         .where('company_hostname', user.company_hostname)
         .where('note_type', 'public')
+        .whereILike('title', `${search}%`)
         .preload('workspace', (q) => {
           q.select('id', 'workspace_name')
         })
-        .paginate(page, limit)
-      console.log('Fetched public notes:', notes)
+      // Apply sorting
+      switch (sort) {
+        case 'new':
+          query.orderBy('created_at', 'desc')
+          break
+        case 'old':
+          query.orderBy('created_at', 'asc')
+          break
+        case 'upvotes':
+          query.orderBy('upvotes', 'desc')
+          break
+        case 'downvotes':
+          query.orderBy('downvotes', 'desc')
+          break
+      }
+
+      // console.log('SQL Query:', query.toQuery())
+
+      const notes = await query.paginate(page, limit)
 
       if (!notes.all().length) {
         throw new Error('Note does not exist')
@@ -210,8 +232,22 @@ export default class NoteService {
       .preload('tags', (q) => {
         q.select('id', 'tag_name')
       })
-      .orderBy('created_at', 'desc')
       .paginate(page, limit)
+
+    // console.log(
+    //   'SQL: ',
+    //   Note.query()
+    //     .where('company_hostname', user.company_hostname)
+    //     .where('author_user_id', user.id)
+    //     .select(['id', 'title', 'content', 'note_type', 'created_at', 'workspace_id'])
+    //     .preload('workspace', (q) => {
+    //       q.select('id', 'workspace_name')
+    //     })
+    //     .preload('tags', (q) => {
+    //       q.select('id', 'tag_name')
+    //     })
+    //     .toQuery()
+    // )
 
     return {
       message: 'Author notes fetched successfully',

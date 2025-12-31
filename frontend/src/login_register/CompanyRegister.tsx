@@ -6,6 +6,7 @@ import api from '../api/axios';
 type Props = {
   goToPage?: (page: 'userRegister' | 'userLogin' | 'companyRegister') => void;
 };
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -19,6 +20,40 @@ const CompanyRegister = ({ goToPage }: Props) => {
     owner_password: '',
   });
 
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const handleEmailChange = (value: string) => {
+    setCompany(prev => ({ ...prev, owner_email: value }));
+    // console.log('Email changed:', value);  
+    if (!emailRegex.test(value)) {
+      setEmailError('Invalid email format');
+    } else {
+      setEmailError('');
+    }
+  };
+
+
+
+  const handlePasswordChange = (value: string) => {
+    setCompany(prev => ({ ...prev, owner_password: value }));
+    if (!PASSWORD_REGEX.test(value)) {
+      setPasswordError(
+        'Password must be 8+ chars, include uppercase, lowercase, number & special character'
+      );
+    } else {
+      setPasswordError('');
+    }
+  };
+
+  const canSubmit =
+    company.company_name.trim() !== '' &&
+    company.hostname.trim() !== '' &&
+    company.owner_name.trim() !== '' &&
+    company.owner_email.trim() !== '' &&
+    company.owner_password.trim() !== '' &&
+    emailError === '' &&
+    passwordError === '';
+
   const [errors, setErrors] = useState<Partial<Record<keyof Company, string>>>({});
   const [loading, setLoading] = useState(false);
 
@@ -29,32 +64,11 @@ const CompanyRegister = ({ goToPage }: Props) => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+
     e.preventDefault();
+    if (!canSubmit) return;
     setErrors({});
 
-    if (company.company_name.trim().length < 2) {
-      setErrors({ company_name: 'Company name must be at least 2 characters' });
-      return;
-    }
-    if (company.hostname.trim().length < 3) {
-      setErrors({ hostname: 'Hostname must be at least 3 characters' });
-      return;
-    }
-    if (company.owner_name.trim().length < 2) {
-      setErrors({ owner_name: 'Owner name must be at least 2 characters' });
-      return;
-    }
-    if (!/^\S+@\S+\.\S+$/.test(company.owner_email)) {
-      setErrors({ owner_email: 'Invalid email address' });
-      return;
-    }
-    if (!PASSWORD_REGEX.test(company.owner_password)) {
-      setErrors({
-        owner_password:
-          'Password must include uppercase, lowercase, number & special character',
-      });
-      return;
-    }
 
     try {
       setLoading(true);
@@ -117,27 +131,29 @@ const CompanyRegister = ({ goToPage }: Props) => {
             type="email"
             placeholder="Owner Email"
             value={company.owner_email}
-            onChange={handleChange}
+            onChange={e=> handleEmailChange(e.target.value)}
             className="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
           />
-          {errors.owner_email && <p className="text-red-500 text-sm">{errors.owner_email}</p>}
+          {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
 
           <input
             name="owner_password"
             type="password"
             placeholder="Owner Password"
             value={company.owner_password}
-            onChange={handleChange}
+            onChange={e=>handlePasswordChange(e.target.value)}
             className="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
           />
-          {errors.owner_password && <p className="text-red-500 text-sm">{errors.owner_password}</p>}
+          {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
         </div>
 
         <button
           type="submit"
-          disabled={loading}
-          className={`bg-blue-500 hover:bg-blue-600 text-white font-semibold p-3 w-full rounded-lg transition-colors ${
-            loading ? 'opacity-50 cursor-not-allowed' : ''
+          disabled={!canSubmit}
+          className={`w-full p-3 rounded text-white ${
+            canSubmit
+              ? 'bg-blue-500 hover:bg-blue-600' 
+              : 'bg-gray-400 cursor-not-allowed'
           }`}
         >
           {loading ? 'Registering...' : 'Register Company'}

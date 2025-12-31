@@ -93,7 +93,7 @@ const UserRegister = ({ goToPage }: Props) => {
 
       <div>
         <input
-          name="email"
+          name="email"  
           type="email"
           placeholder="Email"
           value={user.email}

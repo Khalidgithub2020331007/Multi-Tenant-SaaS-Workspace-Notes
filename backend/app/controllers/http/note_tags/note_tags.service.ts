@@ -2,6 +2,7 @@
 
 import NoteTag from '#models/note_tag'
 import User from '#models/user'
+import Tag from '#models/tag'
 
 type NoteTagPayload = {
   note_id: number
@@ -10,9 +11,16 @@ type NoteTagPayload = {
 
 export default class NoteTagsService {
   public async createNoteTag(payload: NoteTagPayload, user: User) {
-    if (user.role !== 'owner') {
-      throw new Error('Only owners can create noteTags')
+    const tag = await Tag.query().where('id', payload.tag_id).first()
+
+    if (!tag) {
+      throw new Error('Tag does not exist')
     }
+
+    if (tag.company_hostname !== user.company_hostname) {
+      throw new Error('Only same company user can add tags')
+    }
+
     try {
       const existing = await NoteTag.query()
         .where('note_id', payload.note_id)
@@ -31,7 +39,7 @@ export default class NoteTagsService {
         noteTag,
       }
     } catch (error) {
-      throw new Error(`Failed to create noteTag: ${error.message}`)
+      throw new Error(`Failed to create noteTag`)
     }
   }
   public async deleteNoteTag(note_id: number, tag_id: number, user: User) {

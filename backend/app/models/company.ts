@@ -4,7 +4,6 @@ import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
 import Workspace from './workspace.js'
 import User from './user.js'
 import Tag from './tag.js'
-import Note from './note.js'
 
 export default class Company extends BaseModel {
   public static table = 'companies'

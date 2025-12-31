@@ -34,7 +34,7 @@ export default class WorkspaceController {
       // 4️⃣ Handle validation or other errors
       return response.badRequest({
         message: 'Workspace creation failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }
@@ -46,12 +46,10 @@ export default class WorkspaceController {
       if (user?.role !== 'owner') {
         throw new Error('User not owener ')
       }
-      if (user?.company_hostname !== payload.company_hostname) {
-        throw new Error("You can not change another compnay's tag")
-      }
+
       const result = await this.service.delete_workspace(
         payload.workspace_name,
-        payload.company_hostname,
+        user.company_hostname,
         user
       )
 
@@ -64,7 +62,7 @@ export default class WorkspaceController {
       // 4️⃣ Handle validation or other errors
       return response.badRequest({
         message: 'Workspace deletion failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }
@@ -88,7 +86,7 @@ export default class WorkspaceController {
     } catch (error) {
       return response.badRequest({
         message: 'Workspace fetch failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }
@@ -108,7 +106,7 @@ export default class WorkspaceController {
     } catch (error) {
       return response.badRequest({
         message: 'Workspace fetch failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }

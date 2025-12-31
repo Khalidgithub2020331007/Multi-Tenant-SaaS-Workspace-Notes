@@ -27,7 +27,7 @@ export default class UserRegisterController {
       // 4️⃣ Handle validation or other errors
       return response.badRequest({
         message: 'User registration failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }
@@ -52,7 +52,7 @@ export default class UserRegisterController {
       // 4️⃣ Handle validation or other errors
       return response.badRequest({
         message: 'User login failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }
@@ -68,7 +68,7 @@ export default class UserRegisterController {
       // 3️⃣ Handle errors
       return response.badRequest({
         message: 'User logout failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }
@@ -84,7 +84,7 @@ export default class UserRegisterController {
       // 3️⃣ Handle errors
       return response.badRequest({
         message: 'Unauthorized access',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }

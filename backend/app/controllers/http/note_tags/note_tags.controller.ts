@@ -31,7 +31,7 @@ export default class NoteTagsController {
     } catch (error) {
       return response.badRequest({
         message: 'NoteTag creation failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }
@@ -52,7 +52,7 @@ export default class NoteTagsController {
     } catch (error) {
       return response.badRequest({
         message: 'NoteTag deletion failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }

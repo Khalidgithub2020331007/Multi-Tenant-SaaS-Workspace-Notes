@@ -7,27 +7,9 @@ export default class FullSeeder extends BaseSeeder {
   public async run() {
     try {
       // --------------------------
-      // 1) Seed company (parent)
-      // --------------------------
-      const COMPANY_HOSTNAME = 'demo.company'
-      console.log('Seeding company...')
-
-      // Insert a company row so workspace.company_hostname FK won't fail
-      await db.table('companies').insert({
-        hostname: COMPANY_HOSTNAME,
-        company_name: 'Demo Company',
-        owner_name: `${faker.name.firstName()} ${faker.name.lastName()}`,
-        owner_email: `owner@${COMPANY_HOSTNAME}`,
-        owner_password: 'password', // for real apps you should hash this
-        created_at: new Date(),
-        updated_at: new Date(),
-      })
-      console.log(`Seeded company: ${COMPANY_HOSTNAME}`)
-
-      // --------------------------
       // 2) Seed workspaces (10k)
       // --------------------------
-      const TOTAL_WORKSPACES = 10_000
+      const TOTAL_WORKSPACES = 10_00
       const WORKSPACE_CHUNK = 500
 
       console.log('Seeding workspaces...')
@@ -35,7 +17,7 @@ export default class FullSeeder extends BaseSeeder {
         const chunkSize = Math.min(WORKSPACE_CHUNK, TOTAL_WORKSPACES - i)
         const workspaces = Array.from({ length: chunkSize }, () => ({
           workspace_name: faker.company.name(),
-          company_hostname: COMPANY_HOSTNAME,
+          company_hostname: 'demo.company',
           created_at: new Date(),
           updated_at: new Date(),
         }))
@@ -47,7 +29,7 @@ export default class FullSeeder extends BaseSeeder {
       // --------------------------
       // 3) Seed notes (5M)
       // --------------------------
-      const TOTAL_NOTES = 5_000_000
+      const TOTAL_NOTES = 5_000
       // If your machine has limited RAM/DB throughput, reduce NOTE_CHUNK to 500 or 200
       const NOTE_CHUNK = 1000
 
@@ -71,7 +53,7 @@ export default class FullSeeder extends BaseSeeder {
           title: faker.lorem.sentence(),
           content: faker.lorem.paragraphs(2),
           note_type: faker.helpers.arrayElement(['draft', 'public', 'private']),
-          company_hostname: COMPANY_HOSTNAME,
+          company_hostname: 'demo.company',
           upvotes: faker.number.int({ min: 0, max: 100 }),
           downvotes: faker.number.int({ min: 0, max: 50 }),
           totalvotes: 0,

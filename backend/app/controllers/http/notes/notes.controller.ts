@@ -32,7 +32,7 @@ export default class NoteController {
     } catch (error) {
       return response.badRequest({
         message: 'Note creation failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }
@@ -52,7 +52,7 @@ export default class NoteController {
     } catch (error) {
       return response.badRequest({
         message: 'Note deletion failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }
@@ -74,7 +74,7 @@ export default class NoteController {
     } catch (error) {
       return response.badRequest({
         message: 'Note update failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }
@@ -94,7 +94,7 @@ export default class NoteController {
     } catch (error) {
       return response.badRequest({
         message: 'Note search failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }
@@ -107,7 +107,9 @@ export default class NoteController {
       const page = Number(request.input('page', 1))
       let limit = Math.min(Number(request.input('limit', 20)), 20)
       limit = Math.min(limit, 20)
-      const result = await this.service.public_shownotes(user, page, limit)
+      const search = request.input('search', '')
+      const sort = request.input('sort', 'new') as 'new' | 'old' | 'upvotes' | 'downvotes'
+      const result = await this.service.public_shownotes(user, page, limit, search, sort)
 
       return response.ok({
         message: result.message,
@@ -117,7 +119,7 @@ export default class NoteController {
     } catch (error) {
       return response.badRequest({
         message: 'Note search failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }
@@ -136,7 +138,7 @@ export default class NoteController {
     } catch (error) {
       return response.badRequest({
         message: 'Note search failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }
@@ -184,7 +186,7 @@ export default class NoteController {
     } catch (error) {
       return response.badRequest({
         message: 'Note voting failed',
-        errors: error.messages || error.message,
+        // errors: error.messages || error.message,
       })
     }
   }

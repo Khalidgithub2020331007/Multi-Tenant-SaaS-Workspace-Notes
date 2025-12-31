@@ -21,9 +21,8 @@ export default class CompanyRegisterService {
     const trx = await db.transaction()
     try {
       // Before creating company
-      const existingCompany = await Company.query()
+      const existingCompany = await Company.query({ client: trx })
         .where('hostname', payload.hostname)
-        .orWhere('owner_email', payload.owner_email)
         .first()
 
       if (existingCompany) {
